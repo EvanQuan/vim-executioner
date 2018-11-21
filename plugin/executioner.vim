@@ -1,29 +1,36 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    0.1.0
+" Version:    0.2.0
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " ============================================================================
 
-if exists("g:loaded_executioner")
+if exists("g:executioner#loaded")
   finish
 endif
-let g:loaded_executioner = 1
+let g:executioner#loaded = 1
 
-" Executable with file as parameter
-" file extension : command
-let g:executable_with_file = {
-                            \ 'py' : 'python3',
-                            \ 'sh' : 'bash',
-                            \ 'R' : 'Rscript',
-                            \ 'js' : 'node',
-                            \}
+" extension : <command
+" Command is executed with file as argument
+"     $ command filename.extension
+if !exists("g:executioner#extensions")
+  let g:executioner#extensions = {
+                              \ 'py' : 'python3',
+                              \ 'sh' : 'bash',
+                              \ 'R' : 'Rscript',
+                              \ 'js' : 'node',
+                              \}
+endif
 
-" Executable by itself
 " file name : command
-let g:executable_no_file = { 'makefile': 'make',
-                          \}
+" Command is executed with no arguments
+"     $ command
+if !exists("g:executioner#names")
+  let g:executioner#names = {
+                            \ 'makefile': 'make',
+                            \}
+endif
 
 function! s:GetExtenstion(fileName) abort
   " TODO improve regex
@@ -38,16 +45,14 @@ function! s:DetermineExecuteCommand(fileName) abort
   " Returns the execute command of the fileName
   " If not executable, returns empty string
   let s:extension = s:GetExtenstion(a:fileName)
-  if has_key(g:executable_with_file, s:extension)
-    return g:executable_with_file[s:extension]
-  elseif has_key(g:executable_no_file, a:fileName)
-    return g:executable_no_file[a:fileName]
+  if has_key(g:executioner#extensions, s:extension)
+    return g:executioner#extensions[s:extension]
+  elseif has_key(g:executioner#names, a:fileName)
+    return g:executioner#names[a:fileName]
   else
     return ""
   endif
 endfunction
-" nnoremap <leader>d :echo s:DetermineExecuteCommand("")<Left><Left>
-
 
 function! s:SaveAndExecuteFile(...) abort
   " Parameters:

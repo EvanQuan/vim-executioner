@@ -8,7 +8,7 @@ buffer.
 Install using your favorite package manager, or use Vim's built-in package
 support:
 
-#### Vim 8 native package manager
+#### Vim 8 Native Package Manager
 
 ```bash
 git clone https://github.com/EvanQuan/vim-executioner.git ~/.vim/pack/plugin/start/vim-executioner
@@ -44,3 +44,31 @@ will attempt to execute the current buffer.
 The horizontal and vertical commands stores the output of the executed program
 in a readonly buffer, either horizontally or vertically split. Due to this
 reason, it will not work for programs that read from standard input.
+
+## Configure Executable Files
+
+There are 2 dictionaries that define what types of files can be executed:
+
+With `g:executioner#extensions`, Executioner can execute a command based on the
+extension of a file name. With `g:executioner#names`, Executioner can execute
+a command based on a file name. If not defined in your `.vimrc`, they are
+by default defined as:
+
+```vim
+" extension : <command
+" Command is executed with file as argument
+"     $ command filename.extension
+let g:executioner#extensions = {
+                            \ 'py' : 'python3',
+                            \ 'sh' : 'bash',
+                            \ 'R' : 'Rscript',
+                            \ 'js' : 'node',
+                            \}
+
+" file name : command
+" Command is executed with no arguments
+"     $ command
+let g:executioner#names = {
+                          \ 'makefile': 'make',
+                          \}
+```
