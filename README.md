@@ -1,4 +1,4 @@
-# vim-executioner
+# :sunrise_over_mountains: vim-executioner
 
 This plugin allows you to easily execute files in the terminal or a separate
 buffer.
@@ -11,8 +11,27 @@ support:
 #### Vim 8 Native Package Manager
 
 ```bash
+mkdir ~/.vim/pack/plugin/start/vim-executioner
 git clone https://github.com/EvanQuan/vim-executioner.git ~/.vim/pack/plugin/start/vim-executioner
 ```
+
+#### [Vim-Plug](https://github.com/junegunn/vim-plug)
+
+1. Add `Plug 'EvanQuan/vim-executioner'` to your vimrc file.
+2. Reload your vimrc or restart.
+3. Run `:PlugInstall`
+
+#### [Vundle](https://github.com/VundleVim/Vundle.vim)
+
+1. Add `Plugin 'EvanQuan/vim-executioner'` to your vimrc file.
+2. Reload your vimrc or restart.
+3. Run `:BundleInstall`
+
+#### [NeoBundle](https://github.com/Shougo/neobundle.vim)
+
+1. Add `NeoBundle 'EvanQuan/vim-executioner'` to your vimrc file.
+2. Reload your vimrc or restart.
+3. Run `:NeoUpdate`
 
 #### [Pathogen](https://github.com/tpope/vim-pathogen)
 
