@@ -5,6 +5,15 @@ buffer.
 
 ![](https://raw.githubusercontent.com/wiki/EvanQuan/vim-executioner/executioner.PNG)
 
+Table of Contents
+-----------------
+1. [Installation](#installation)
+2. [Usage](#usage)
+    - [Commands](#commands)
+    - [Command line arguments](#command-line-arguments)
+    - [Key mappings](#key-mappings)
+3. [Configure Executable Files](#configure-executable-files)
+
 ## Installation
 
 Install using your favorite package manager, or use Vim's built-in package
@@ -43,6 +52,8 @@ git clone https://github.com/EvanQuan/vim-executioner.git ~/.vim/bundle/vim-exec
 
 ## Usage
 
+#### Commands
+
 This package comes with 3 commands:
 
 - `:Executioner`
@@ -70,6 +81,42 @@ input.
 Without the terminal feature available, the horizontal and vertical commands
 stores the output of the executed program in a readonly buffer. Due to this
 reason, it will not work for programs that require user input.
+
+#### Command line arguments
+
+You can pass in command line arguments for Executioner to use.
+
+For example, `:Executioner test.js arg1 arg2 arg3` will pass `arg1`, `arg2`,
+and `arg3` as arguments for the execution command on the file `test.js`.
+
+#### Key mappings
+
+By default, Executioner does not provide any key mappings as to not override
+mappings defined in your `.vimrc`. You can map these commands to however you
+like to make them easier to use.
+
+For example, I personally use:
+
+```vim
+" Run current buffer
+"
+nnoremap <silent> <leader>rf :Executioner<CR>
+nnoremap <silent> <leader>hrf :ExecutionerHorizontal<CR>
+nnoremap <silent> <leader>vrf :ExecutionerVertical<CR>
+
+" run.sh
+"
+nnoremap <silent> <leader>rr :Executioner run.sh<CR>
+nnoremap <silent> <leader>hrr :ExecutionerHorizontal run.sh<CR>
+nnoremap <silent> <leader>vrr :ExecutionerVertical run.sh<CR>
+
+" Makefile
+"
+nnoremap <silent> <leader>rm :Executioner makefile<CR>
+nnoremap <silent> <leader>hrm :ExecutionerHorizontal makefile<CR>
+nnoremap <silent> <leader>vrm :ExecutionerVertical makefile<CR>
+```
+
 
 ## Configure Executable Files
 
