@@ -34,12 +34,12 @@ let s:DOT_WITH_FILE_EXTENSION = '\..*'
 "     $ command filename.extension
 if !exists("g:executioner#extensions")
   let g:executioner#extensions = {
-                              \ 'R'  : 'Rscript',
-                              \ 'hs'  : 'ghci',
-                              \ 'js' : 'node',
-                              \ 'py' : 'python3',
-                              \ 'sh' : 'bash',
-                              \}
+                                 \ 'R'  : 'Rscript',
+                                 \ 'hs'  : 'ghci',
+                                 \ 'js' : 'node',
+                                 \ 'py' : 'python3',
+                                 \ 'sh' : 'bash',
+                                 \}
 endif
 
 " file name : command
@@ -63,7 +63,7 @@ function! s:DetermineExecuteCommand(file_name) abort
   if has_key(g:executioner#names, a:file_name)
     return g:executioner#names[a:file_name]
   elseif has_key(g:executioner#extensions, s:extension)
-    return g:executioner#extensions[s:extension] . " " . shellescape(a:file_name, 1)
+    return g:executioner#extensions[s:extension] . " " . a:file_name
   else
     return ""
   endif
@@ -77,44 +77,45 @@ function! s:DetermineSplitPrefix(split_type) abort
 
   " If terminal is available, use just the built-in terminal. Otherwise,
   " run the command in command-mode terminal and redirect output to buffer.
-  let s:split_prefix = has("terminal") && a:split_type != s:NONE ? (
-              \ a:split_type == s:VERTICAL ? "vertical " . "terminal " :
-              \ a:split_type == s:HORIZONTAL ?  "horizontal " . "terminal " : ""
-                    \ )
+  let s:split_prefix = has("terminal") && a:split_type != s:NONE ?
+              \ (a:split_type == s:VERTICAL ? "vertical " : "") . "terminal "
         \ :
               \ a:split_type != s:NONE ? "." : ""
                     \ . "!"
   return s:split_prefix
 endfunction
 
-function! s:ExecuteCommand(split_type, final_command) abort
+function! s:ExecuteCommand(split_type, final_command, file_name) abort
   " Split type is only needed for non-terminal to determine how buffer is
   " split
 
+  " echom "in ExecuteCommand"
   " Check for terminal
   if has("terminal")
+    " echom "ExecuteCommand: has terminal"
     execute a:final_command
-    return
-  endif
+    " execute shellescape(a:final_command, 1)
+    " echom "final_command: " . s:final_command
+  " echom "ExecuteCommand: no terminal"
 
   " Manually create a readonly buffer if terminal is not supported
-  if a:split_type != s:NONE
-    let a:buffer_split = a:split_type == s:VERTICAL ? 'vertical' : 'botright'
+  elseif a:split_type != s:NONE
+    let s:buffer_split = s:split_type == s:VERTICAL ? 'vertical' : 'botright'
 
-    let a:output_buffer_name = "Output"
-    let a:output_buffer_filetype = "output"
+    let s:output_buffer_name = "Output"
+    let s:output_buffer_filetype = "output"
     " reuse existing buffer window if it exists otherwise create a new one
-    if !exists("a:buf_nr") || !bufexists(a:buf_nr)
-      silent execute a:buffer_split . ' new ' . a:output_buffer_name
-      let a:buf_nr = bufnr('%')
-    elseif bufwinnr(a:buf_nr) == -1
-      silent execute a:buffer_split . ' new'
-      silent execute a:buf_nr . 'buffer'
-    elseif bufwinnr(a:buf_nr) != bufwinnr('%')
-      silent execute bufwinnr(a:buf_nr) . 'wincmd w'
+    if !exists("s:buf_nr") || !bufexists(s:buf_nr)
+      silent execute s:buffer_split . ' new ' . s:output_buffer_name
+      let s:buf_nr = bufnr('%')
+    elseif bufwinnr(s:buf_nr) == -1
+      silent execute s:buffer_split . ' new'
+      silent execute s:buf_nr . 'buffer'
+    elseif bufwinnr(s:buf_nr) != bufwinnr('%')
+      silent execute bufwinnr(s:buf_nr) . 'wincmd w'
     endif
 
-    silent execute "setlocal filetype=" . a:output_buffer_filetype
+    silent execute "setlocal filetype=" . s:output_buffer_filetype
     setlocal bufhidden=delete
     setlocal buftype=nofile
     setlocal noswapfile
@@ -130,7 +131,6 @@ function! s:ExecuteCommand(split_type, final_command) abort
     setlocal modifiable
     %delete _
 
-    " echo "Executing " . shellescape(a:current_buffer_file_path, 1) . " ..."
     echon 'Executing ' . a:file_name . ' ... '
     " Execute file
     execute a:final_command
@@ -149,20 +149,9 @@ function! s:ExecuteCommand(split_type, final_command) abort
     " make the buffer non modifiable
     setlocal readonly
     setlocal nomodifiable
-    echon "DONE"
   endif
 endfunction
 
-" function! s:MergeExecuteCommandWith(execute_command) abort
-"   " Returns the execute_command with the file based on validity of execute
-"   " command, and command type. Invalid execute_commands (empty), result in
-"   " a message being echoed to the user.
-"   a:execute_command == "" ? "echo '" .
-"         \ (&filetype == "" ? "no ft" : &filetype) . " files cannot be ran.'" :
-"         \ a:output_type . "!" . a:execute_command .
-"         \ (a:execute_command == "make" ? "" : " " . shellescape(a:file_name, 1))
-"   " return
-" endfunction
 
 function! s:SaveAndExecuteFile(...) abort
   " Parameters:
@@ -180,20 +169,21 @@ function! s:SaveAndExecuteFile(...) abort
   let s:file_name = (a:0 > 1 && a:2 != "" ? a:2 : expand("%"))
 
   " DEBUG
-  echom "a0: " . a:0
-  echom "a1: " . (a:0 > 0 ? a:1 : "no a1")
-  echom "a2: " . (a:0 > 1 ? a:2 : "no a2")
-  echom "s:split_type: " . s:split_type
-  echom "s:file_name: " . s:file_name
+  " echom "a0: " . a:0
+  " echom "a1: " . (a:0 > 0 ? a:1 : "no a1")
+  " echom "a2: " . (a:0 > 1 ? a:2 : "no a2")
+  " echom "s:split_type: " . s:split_type
+  " echom "s:file_name: " . s:file_name
 
   " If not split, then output is terminal
   " Otherwise, the output replaces the current buffer contents
   let s:execute_command = s:DetermineExecuteCommand(s:file_name)
 
+  " echom "s:execute_command: " . s:execute_command
   " If invalid execute_command then return early with error message
   if s:execute_command == ""
-    execute "echo '\'" . s:file_name . "\' is not configured to be executable.'"
-    return
+    execute "echo \"'" . s:file_name . "' is not configured to be executable.\""
+    return -1
   endif
 
   " Evaluate saving current buffer
@@ -208,24 +198,9 @@ function! s:SaveAndExecuteFile(...) abort
 
   let s:final_command = s:split_prefix . s:execute_command
 
-  echom "s:final_command: " . s:final_command
-  " return
-
   " Finally execute command
-  s:ExecuteCommand(s:split_type, s:final_command)
+  call s:ExecuteCommand(s:split_type, s:final_command, s:file_name)
 endfunction
-
-function! g:Debug()
-  " echom s:DetermineExecuteCommand("test.py")
-  " echom s:DetermineExecuteCommand("makefile")
-  " echom s:DetermineExecuteCommand("run.sh")
-  " s:SaveAndExecuteFile(s:NONE, "test.py")
-  " echom s:SaveAndExecuteFile(s:VERTICAL, "makefile")
-  " echom s:SaveAndExecuteFile(s:HORIZONTAL, "run.sh")
-endfunction
-
-nnoremap <leader>d :call g:Debug()<CR>
-nnoremap <leader>d :call g:Debug()<CR>
 
 " Create commands
 command! -nargs=* Executioner           :call s:SaveAndExecuteFile(s:NONE, <q-args>)

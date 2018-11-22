@@ -62,9 +62,13 @@ will attempt to execute `test.py` in the current working directory, while
 ```
 will attempt to execute the current buffer.
 
-The horizontal and vertical commands stores the output of the executed program
-in a readonly buffer, either horizontally or vertically split. Due to this
-reason, it will not work for programs that read from standard input.
+If you running a version of Vim that has the integrated terminal feature (i.e.
+`echo has(terminal)` returns 1), then the horizontal and vertical commands open
+a terminal buffer to output the command, allowing for potential user input.
+
+Without the terminal feature available, the horizontal and vertical commands
+stores the output of the executed program in a readonly buffer. Due to this
+reason, it will not work for programs that require user input.
 
 ## Configure Executable Files
 
@@ -80,11 +84,12 @@ by default defined as:
 " Command is executed with file as argument
 "     $ command filename.extension
 let g:executioner#extensions = {
-                            \ 'py' : 'python3',
-                            \ 'sh' : 'bash',
-                            \ 'R' : 'Rscript',
-                            \ 'js' : 'node',
-                            \}
+                               \ 'R'  : 'Rscript',
+                               \ 'hs'  : 'ghci',
+                               \ 'js' : 'node',
+                               \ 'py' : 'python3',
+                               \ 'sh' : 'bash',
+                               \}
 
 " file name : command
 " Command is executed with no arguments
