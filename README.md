@@ -63,8 +63,9 @@ will attempt to execute `test.py` in the current working directory, while
 will attempt to execute the current buffer.
 
 If you running a version of Vim that has the integrated terminal feature (i.e.
-`echo has(terminal)` returns 1), then the horizontal and vertical commands open
-a terminal buffer to output the command, allowing for potential user input.
+`:echo has("terminal")` returns 1), then the horizontal and vertical commands
+open a terminal buffer to output the command, allowing for potential user
+input.
 
 Without the terminal feature available, the horizontal and vertical commands
 stores the output of the executed program in a readonly buffer. Due to this
@@ -98,3 +99,20 @@ let g:executioner#names = {
                           \ 'makefile': 'make',
                           \}
 ```
+
+`g:executioner#extensions` determines commands by file extension. For example,
+if you want to execute files with the `.foo` extension, such as
+`hello_world.foo`, with the `bar` command, (i.e. executing `bar
+hello_world.foo` in the terminal), then the value `'foo' : 'bar'` must be
+included in this dictionary.
+
+`g:executioner#names` determines commands by file name. For example, if you want
+to execute files with the name `delete_me.txt` with the command `rm
+delete_me.txt`, then the value `'delete_me.txt' : 'rm delete_me.txt'` must be
+included in this dictionary.
+
+Executioner will prioritize names over extensions when determining what command
+to use. For example: if `g:executioner#extensions` dictates that `py` files are
+to be executed with `python3` and `g:executioner#names` dictates that `foo.py`
+is to be executed with `python2`, then `foo.py` will be executed with
+`python2`.
