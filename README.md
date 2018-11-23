@@ -13,6 +13,8 @@ Table of Contents
     - [Command line arguments](#command-line-arguments)
     - [Key mappings](#key-mappings)
 3. [Configure Executable Files](#configure-executable-files)
+    - [Commands](#commands)
+    - [Current file](#current-file)
 
 ## Installation
 
@@ -120,6 +122,8 @@ nnoremap <silent> <leader>vrm :ExecutionerVertical makefile<CR>
 
 ## Configure Executable Files
 
+#### Commands
+
 There are 2 dictionaries that define what types of files can be executed:
 
 With `g:executioner#extensions`, Executioner can execute a command based on the
@@ -132,9 +136,14 @@ by default defined as:
 " Command is executed with file as argument
 "     $ command filename.extension
 let g:executioner#extensions = {
+                               \ 'c'  : 'gcc % -o a.out; ./a.out',
+                               \ 'cpp'  : 'g++ % -o a.out; ./a.out',
                                \ 'R'  : 'Rscript',
                                \ 'hs'  : 'ghci',
                                \ 'js' : 'node',
+                               \ 'php' : 'php',
+                               \ 'pl' : 'perl',
+                               \ 'prolog' : 'swipl',
                                \ 'py' : 'python3',
                                \ 'sh' : 'bash',
                                \}
@@ -163,3 +172,16 @@ to use. For example: if `g:executioner#extensions` dictates that `py` files are
 to be executed with `python3` and `g:executioner#names` dictates that `foo.py`
 is to be executed with `python2`, then `foo.py` will be executed with
 `python2`.
+
+#### Current file
+
+Sometimes you may want to refer to the current file as well as add command line
+arguments. The current file can be referred to by `g:executioner#current_file`,
+which you can set in your `.vimrc`. By default it is defined as:
+
+ ```vim
+let g:executioner#current_file = '%'
+ ```
+
+For example, if you want to run a C file by compiling it first, you can define
+its command as `'c'  : 'gcc % -o a.out; ./a.out'` in `g:executioner#commands`.

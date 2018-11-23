@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    0.4.0
+" Version:    0.5.0
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " ============================================================================
@@ -10,6 +10,12 @@ if exists("g:executioner#loaded")
   finish
 endif
 let g:executioner#loaded = 1
+
+" Name and extension
+let g:executioner#current_file = '%'
+" Just name
+" Currently unused
+let s:executioner#current_name = '@'
 
 " Fake enums
 
@@ -38,9 +44,14 @@ let s:DOT_WITH_FILE_EXTENSION = '\..*'
 "     $ command filename.extension
 if !exists("g:executioner#extensions")
   let g:executioner#extensions = {
+                                 \ 'c'  : 'gcc % -o a.out; ./a.out',
+                                 \ 'cpp'  : 'g++ % -o a.out; ./a.out',
                                  \ 'R'  : 'Rscript',
                                  \ 'hs'  : 'ghci',
                                  \ 'js' : 'node',
+                                 \ 'php' : 'php',
+                                 \ 'pl' : 'perl',
+                                 \ 'prolog' : 'swipl',
                                  \ 'py' : 'python3',
                                  \ 'sh' : 'bash',
                                  \}
@@ -69,7 +80,8 @@ function! s:GetExecuteCommand(parsed_input) abort
   if has_key(g:executioner#names, a:parsed_input[s:FILE_NAME])
     return g:executioner#names[a:parsed_input] . a:parsed_input[s:ARGS]
   elseif has_key(g:executioner#extensions, s:extension)
-    return g:executioner#extensions[s:extension] . " " . a:parsed_input[s:FILE_NAME] . a:parsed_input[s:ARGS]
+    return g:executioner#extensions[s:extension] . " "
+          \ . a:parsed_input[s:FILE_NAME] . a:parsed_input[s:ARGS]
   else
     return ""
   endif
@@ -83,7 +95,7 @@ function! s:ParseInput(file_with_args) abort
   if len(s:input_list) == 0
     return ["", ""]
   endif
-  let s:file_name = s:input_list[0]
+  let s:file_name = s:input_list[0] == g:executioner#current_file ? expand("%") : s:input_list[0]
   let s:arguments = ""
   if len(s:input_list) > 1
     for arg in s:input_list[1:]
@@ -191,7 +203,7 @@ function! s:SaveAndExecuteFile(...) abort
   let s:split_type = a:0 > 0 ? a:1 : s:NONE
   " Expand is not working? Is it doing the vim file?
   " Or is args count wrong?
-  let s:file_with_args = (a:0 > 1 && a:2 != "" ? a:2 : expand("%"))
+  let s:file_with_args = a:0 > 1 && a:2 != "" ? a:2 : expand("%")
 
   " DEBUG
   " echom "a0: " . a:0
@@ -208,7 +220,8 @@ function! s:SaveAndExecuteFile(...) abort
   " echom "s:execute_command: " . s:execute_command
   " If invalid execute_command then return early with error message
   if s:execute_command == ""
-    execute "echo \"'" . s:parsed_input[s:FILE_NAME] . "' is not configured to be executable.\""
+    execute "echo \"'" . s:parsed_input[s:FILE_NAME]
+          \ . "' is not configured to be executable.\""
     return -1
   endif
 
