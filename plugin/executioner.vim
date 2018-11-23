@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    0.5.1
+" Version:    0.6.0
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " ============================================================================
@@ -15,7 +15,7 @@ let g:executioner#loaded = 1
 let g:executioner#current_file = '%'
 " Just name
 " Currently unused
-" let g:executioner#current_name = '@'
+let g:executioner#current_name = '@'
 
 " Fake enums
 
@@ -44,16 +44,16 @@ let s:DOT_WITH_FILE_EXTENSION = '\..*'
 "     $ command filename.extension
 if !exists("g:executioner#extensions")
   let g:executioner#extensions = {
-                                 \ 'c'  : 'gcc % -o a.out; ./a.out',
-                                 \ 'cpp'  : 'g++ % -o a.out; ./a.out',
-                                 \ 'R'  : 'Rscript',
-                                 \ 'hs'  : 'ghci',
-                                 \ 'js' : 'node',
-                                 \ 'php' : 'php',
-                                 \ 'pl' : 'perl',
-                                 \ 'prolog' : 'swipl',
-                                 \ 'py' : 'python3',
-                                 \ 'sh' : 'bash',
+                                 \ 'c'  : 'gcc % -o @.out; ./@.out',
+                                 \ 'cpp'  : 'g++ % -o @.out; ./@.out',
+                                 \ 'R'  : 'Rscript %',
+                                 \ 'hs'  : 'ghci %',
+                                 \ 'js' : 'node %',
+                                 \ 'php' : 'php %',
+                                 \ 'pl' : 'perl %',
+                                 \ 'prolog' : 'swipl %',
+                                 \ 'py' : 'python3 %',
+                                 \ 'sh' : 'bash %',
                                  \}
 endif
 
@@ -87,23 +87,38 @@ function! s:GetExecuteCommand(parsed_input) abort
   endif
 endfunction
 
+function! s:Substitute(string, old, new) abort
+  " Substitute characters of s:executioner#curent_name with current name
+  let s:new_string = ""
+  for i in range(len(a:string))
+    if a:string[i] == a:old
+      let s:new_string .= a:new
+    else
+      let s:new_string .= a:string[i]
+    endif
+  endfor
+  return s:new_string
+endfunction
+
 function! s:ParseInput(file_with_args) abort
   " Returns the input as a list
-  " 0    - file name (name with extention)
+  " 0    - file (name with extention)
   " 1..n - arguments (empty if none)
   let s:input_list = split(a:file_with_args)
   if len(s:input_list) == 0
     return ["", ""]
   endif
-  let s:file_name = s:input_list[0] == g:executioner#current_file ? expand("%") : s:input_list[0]
+  let s:file = s:input_list[0] == g:executioner#current_file ?
+        \ expand("%") : s:input_list[0]
+  let s:file_name = split(s:file, '\.')[0]
   let s:arguments = ""
   if len(s:input_list) > 1
     for arg in s:input_list[1:]
       " s:arguments = s:arguments . " " . arg
-      let s:arguments .= " " . arg
+      let s:arguments .= " " . s:Substitute(arg, g:executioner#current_name, s:file_name)
     endfor
   endif
-  return [s:file_name, s:arguments]
+  return [s:file, s:arguments]
 endfunction
 
 function! s:GetSplitPrefix(split_type) abort
@@ -241,15 +256,23 @@ function! s:SaveAndExecuteFile(...) abort
   call s:ExecuteCommand(s:split_type, s:final_command, s:file_name)
 endfunction
 
-" function! g:Debug() abort
-"   let s:parsed_input = s:ParseInput("test.py a1 --a2 -a3")
-"   echom "file_name: \"" . s:parsed_input[s:FILE_NAME] . "\""
-"   echom "args: \"" . s:parsed_input[s:ARGS] . "\""
-"   echom "extension: \"" . s:GetExtension(s:parsed_input[s:FILE_NAME]) . "\""
-"   echom "execute_command: \"" . s:GetExecuteCommand(s:parsed_input) . "\""
-" endfunction
+function! g:Debug(...) abort
+  let s:file_with_args = a:0 > 1 && a:2 != "" ? a:2 : expand("%")
 
-" nnoremap <leader>d :call g:Debug()<CR>
+  let s:parsed_input = s:ParseInput(s:file_with_args)
+  let s:execute_command = s:GetExecuteCommand(s:parsed_input)
+
+  echom s:execute_command
+  " let s:file_name = split("test.py", '.')[0]
+  " echom s:file_name[0]
+  " let s:parsed_input = s:ParseInput("test.py a1 --a2 -a3")
+  " echom "file_name: \"" . s:parsed_input[s:FILE_NAME] . "\""
+  " echom "args: \"" . s:parsed_input[s:ARGS] . "\""
+  " echom "extension: \"" . s:GetExtension(s:parsed_input[s:FILE_NAME]) . "\""
+  " echom "execute_command: \"" . s:GetExecuteCommand(s:parsed_input) . "\""
+endfunction
+
+nnoremap <leader>d :call g:Debug(2, "test.cpp")<CR>
 
 " Create commands
 command! -nargs=* Executioner           :call s:SaveAndExecuteFile(s:NONE, <q-args>)
