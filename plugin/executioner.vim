@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    0.5.0
+" Version:    0.5.1
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " ============================================================================
@@ -15,7 +15,7 @@ let g:executioner#loaded = 1
 let g:executioner#current_file = '%'
 " Just name
 " Currently unused
-let s:executioner#current_name = '@'
+" let g:executioner#current_name = '@'
 
 " Fake enums
 
