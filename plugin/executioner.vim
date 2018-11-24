@@ -12,15 +12,18 @@ endif
 let g:executioner#loaded = 1
 
 " Name and extension
-let g:executioner#current_file = '%'
+if !exists("g:executioner#file_symbol")
+  let g:executioner#file_symbol = '%'
+endif
 " Just name
-" Currently unused
-let g:executioner#current_name = '@'
+if !exists("g:executioner#name_symbol")
+  let g:executioner#name_symbol = '@'
+endif
 
 " Fake enums
 
 " Parsed input
-let s:FILE_NAME = 0
+let s:NAME = 0
 let s:ARGS = 1
 
 " Split types
@@ -47,12 +50,14 @@ if !exists("g:executioner#extensions")
                                  \ 'c'  : 'gcc % -o @.out; ./@.out',
                                  \ 'cpp'  : 'g++ % -o @.out; ./@.out',
                                  \ 'R'  : 'Rscript %',
+                                 \ 'r'  : 'Rscript %',
                                  \ 'hs'  : 'ghci %',
                                  \ 'js' : 'node %',
                                  \ 'php' : 'php %',
                                  \ 'pl' : 'perl %',
                                  \ 'prolog' : 'swipl %',
                                  \ 'py' : 'python3 %',
+                                 \ 'py2' : 'python %',
                                  \ 'sh' : 'bash %',
                                  \}
 endif
@@ -67,21 +72,25 @@ if !exists("g:executioner#names")
 endif
 
 function! s:GetExtension(file_name) abort
-  " If no extension is found, return ""
+  " Get the extension of file name denoted characters after the first "."
+  " Paramters:
+  "   string file_name
+  " Returns:
+  "   the extension of file_name if found
+  "   "" if no extension is found
   return matchstr(a:file_name, s:DOT_WITH_FILE_EXTENSION)[1:]
 endfunction
 
 function! s:GetExecuteCommand(parsed_input) abort
   " Returns the execute command of the parsed_input
   " If not executable, returns empty string
-  " echom "GetExecuteCommand file name: \"" . a:parsed_input[s:FILE_NAME] . "\""
-  let s:extension = s:GetExtension(a:parsed_input[s:FILE_NAME])
+  " echom "GetExecuteCommand file name: \"" . a:parsed_input[s:NAME] . "\""
+  let s:extension = s:GetExtension(a:parsed_input[s:NAME])
   " echom "GetExecuteCommand extension: \"" . s:extension . "\""
-  if has_key(g:executioner#names, a:parsed_input[s:FILE_NAME])
+  if has_key(g:executioner#names, a:parsed_input[s:NAME])
     return g:executioner#names[a:parsed_input] . a:parsed_input[s:ARGS]
   elseif has_key(g:executioner#extensions, s:extension)
-    return g:executioner#extensions[s:extension] . " "
-          \ . a:parsed_input[s:FILE_NAME] . a:parsed_input[s:ARGS]
+    return g:executioner#extensions[s:extension] . " " . a:parsed_input[s:ARGS]
   else
     return ""
   endif
@@ -101,21 +110,29 @@ function! s:Substitute(string, old, new) abort
 endfunction
 
 function! s:ParseInput(file_with_args) abort
-  " Returns the input as a list
-  " 0    - file (name with extention)
-  " 1..n - arguments (empty if none)
-  let s:input_list = split(a:file_with_args)
-  if len(s:input_list) == 0
-    return ["", ""]
+  " Parses the input into an executable command
+  " Parameters:
+  "   string file_with_args - file name, optionally followed by arguments
+  " Returns:
+  "   the command to execute
+
+  " If no arguments supplied, then there is no command to execute.
+  if len(a:file_with_args) == 0
+    return ""
   endif
-  let s:file = s:input_list[0] == g:executioner#current_file ?
+
+  " Split the arguments into terms to extract the file name and extension.
+  let s:input_list = split(a:file_with_args)
+
+  " If the first term (file name) is the file symbol, 
+  let s:file = s:input_list[0] == g:executioner#file_symbol ?
         \ expand("%") : s:input_list[0]
   let s:file_name = split(s:file, '\.')[0]
   let s:arguments = ""
   if len(s:input_list) > 1
     for arg in s:input_list[1:]
       " s:arguments = s:arguments . " " . arg
-      let s:arguments .= " " . s:Substitute(arg, g:executioner#current_name, s:file_name)
+      let s:arguments .= " " . s:Substitute(arg, g:executioner#name_symbol, s:file_name)
     endfor
   endif
   return [s:file, s:arguments]
@@ -214,10 +231,15 @@ function! s:SaveAndExecuteFile(...) abort
   "   a:2 string file_with_args
   "     default - current file
   "
-  " SOURCE [reusable window]: https://github.com/fatih/vim-go/blob/master/autoload/go/ui.vim
+  " SOURCE [reusable window]:
+  " https://github.com/fatih/vim-go/blob/master/autoload/go/ui.vim
+
+  " If no arguments are supplied then the split type defaults to NONE.
+  " Otherwise, use the specified split type.
   let s:split_type = a:0 > 0 ? a:1 : s:NONE
-  " Expand is not working? Is it doing the vim file?
-  " Or is args count wrong?
+
+  " If no arguments after split type are specified, assume the current file
+  " is being ran with no arguments.
   let s:file_with_args = a:0 > 1 && a:2 != "" ? a:2 : expand("%")
 
   " DEBUG
@@ -235,7 +257,7 @@ function! s:SaveAndExecuteFile(...) abort
   " echom "s:execute_command: " . s:execute_command
   " If invalid execute_command then return early with error message
   if s:execute_command == ""
-    execute "echo \"'" . s:parsed_input[s:FILE_NAME]
+    execute "echo \"'" . s:parsed_input[s:NAME]
           \ . "' is not configured to be executable.\""
     return -1
   endif
@@ -266,9 +288,9 @@ function! g:Debug(...) abort
   " let s:file_name = split("test.py", '.')[0]
   " echom s:file_name[0]
   " let s:parsed_input = s:ParseInput("test.py a1 --a2 -a3")
-  " echom "file_name: \"" . s:parsed_input[s:FILE_NAME] . "\""
+  " echom "file_name: \"" . s:parsed_input[s:NAME] . "\""
   " echom "args: \"" . s:parsed_input[s:ARGS] . "\""
-  " echom "extension: \"" . s:GetExtension(s:parsed_input[s:FILE_NAME]) . "\""
+  " echom "extension: \"" . s:GetExtension(s:parsed_input[s:NAME]) . "\""
   " echom "execute_command: \"" . s:GetExecuteCommand(s:parsed_input) . "\""
 endfunction
 
