@@ -14,7 +14,7 @@ Table of Contents
     - [Key mappings](#key-mappings)
 3. [Configure Executable Files](#configure-executable-files)
     - [Commands](#commands)
-    - [Current file](#current-file)
+    - [Full and base name symbols](#full-and-base-name-symbols)
 
 ## Installation
 
@@ -122,6 +122,24 @@ nnoremap <silent> <leader>vrm :ExecutionerVertical makefile<CR>
 
 ## Configure Executable Files
 
+#### Full and base name symbols
+
+You may want to refer to the full file name or base name in in your commands.
+The full file name, which is the base name with file extension, can be referred
+to by `g:executioner#full_name`, while the base name can be referred to by
+`g:executioner#base_name`, both which you can set in your `.vimrc`. By default
+they are defined as:
+
+ ```vim
+let g:executioner#full_name = '%'
+let g:executioner#base_name = '@'
+ ```
+
+For example, if you want to run a C file by compiling it first, you can define
+its command as `'c'  : 'gcc % -o @.out; ./@.out'` in `g:executioner#commands`,
+which will compile a `.out` fie with the same base name as the source file,
+and then execute it.
+
 #### Commands
 
 There are 2 dictionaries that define what types of files can be executed:
@@ -132,25 +150,25 @@ a command based on a file name. If not defined in your `.vimrc`, they are
 by default defined as:
 
 ```vim
-" extension : <command
-" Command is executed with file as argument
-"     $ command filename.extension
+" extension : command
+" Command is executed if file has specified extension
 let g:executioner#extensions = {
-                               \ 'c'  : 'gcc % -o a.out; ./a.out',
-                               \ 'cpp'  : 'g++ % -o a.out; ./a.out',
-                               \ 'R'  : 'Rscript',
-                               \ 'hs'  : 'ghci',
-                               \ 'js' : 'node',
-                               \ 'php' : 'php',
-                               \ 'pl' : 'perl',
-                               \ 'prolog' : 'swipl',
-                               \ 'py' : 'python3',
-                               \ 'sh' : 'bash',
+                               \ 'c'  : 'gcc % -o @.out; ./@.out',
+                               \ 'cpp'  : 'g++ % -o @.out; ./@.out',
+                               \ 'R'  : 'Rscript %',
+                               \ 'r'  : 'Rscript %',
+                               \ 'hs'  : 'ghci %',
+                               \ 'js' : 'node %',
+                               \ 'php' : 'php %',
+                               \ 'pl' : 'perl %',
+                               \ 'prolog' : 'swipl %',
+                               \ 'py' : 'python3 %',
+                               \ 'py2' : 'python %',
+                               \ 'sh' : 'bash %',
                                \}
 
 " file name : command
-" Command is executed with no arguments
-"     $ command
+" Command is executed if file has specified name
 let g:executioner#names = {
                           \ 'makefile': 'make',
                           \}
@@ -159,7 +177,7 @@ let g:executioner#names = {
 `g:executioner#extensions` determines commands by file extension. For example,
 if you want to execute files with the `.foo` extension, such as
 `hello_world.foo`, with the `bar` command, (i.e. executing `bar
-hello_world.foo` in the terminal), then the value `'foo' : 'bar'` must be
+hello_world.foo` in the terminal), then the value `'foo' : 'bar %'` must be
 included in this dictionary.
 
 `g:executioner#names` determines commands by file name. For example, if you want
@@ -173,15 +191,3 @@ to be executed with `python3` and `g:executioner#names` dictates that `foo.py`
 is to be executed with `python2`, then `foo.py` will be executed with
 `python2`.
 
-#### Current file
-
-Sometimes you may want to refer to the current file as well as add command line
-arguments. The current file can be referred to by `g:executioner#current_file`,
-which you can set in your `.vimrc`. By default it is defined as:
-
- ```vim
-let g:executioner#current_file = '%'
- ```
-
-For example, if you want to run a C file by compiling it first, you can define
-its command as `'c'  : 'gcc % -o a.out; ./a.out'` in `g:executioner#commands`.
