@@ -13,8 +13,8 @@ Table of Contents
     - [Command line arguments](#command-line-arguments)
     - [Key mappings](#key-mappings)
 3. [Configure Executable Files](#configure-executable-files)
-    - [Commands](#commands)
     - [Full and base name symbols](#full-and-base-name-symbols)
+    - [Commands](#commands-1)
 
 ## Installation
 
