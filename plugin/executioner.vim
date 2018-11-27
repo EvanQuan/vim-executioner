@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.0.0
+" Version:    1.1.0
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " ============================================================================
@@ -41,18 +41,23 @@ let s:NAME_COMMAND = 1
 " Command is executed if file has specified extension
 if !exists("g:executioner#extensions")
   let g:executioner#extensions = {
-                                 \ 'c'  : 'gcc % -o @.out; ./@.out',
-                                 \ 'cpp'  : 'g++ % -o @.out; ./@.out',
-                                 \ 'R'  : 'Rscript %',
-                                 \ 'r'  : 'Rscript %',
+                                 \ 'c'  : 'gcc % -o @.out;./@.out',
+                                 \ 'cpp'  : 'g++ % -o @.out;./@.out',
                                  \ 'hs'  : 'ghci %',
                                  \ 'js' : 'node %',
+                                 \ 'm' : 'matlab',
+                                 \ 'ml' : 'ocaml % -o @.out;./@.out',
                                  \ 'php' : 'php %',
                                  \ 'pl' : 'perl %',
                                  \ 'prolog' : 'swipl %',
                                  \ 'py' : 'python3 %',
                                  \ 'py2' : 'python %',
+                                 \ 'R'  : 'Rscript %',
+                                 \ 'r'  : 'Rscript %',
+                                 \ 'rb'  : 'ruby %',
+                                 \ 'rc'  : 'rustc % -o @.out;./@.out',
                                  \ 'sh' : 'bash %',
+                                 \ 'swift'  : 'swiftc % -o @.out;./@.out',
                                  \}
 endif
 
@@ -305,7 +310,12 @@ function! s:SaveAndExecuteFile(...) abort
   " If vertical or horizontal split, then create terminal or output buffer
   let s:split_prefix = s:GetSplitPrefix(s:split_type)
 
+  " TODO return here. Doesn't seem to work.
+  " Do temporary fix. Switch to no split.
   let s:final_command = s:split_prefix . s:execute_command
+  if s:split_type =~ ":vertical*" || s:split_type =~ ":terminal"
+    let s:final_command = s:Substitute(s:final_command, ';', "\<CR>")
+  endif
 
   " Finally execute command
   call s:ExecuteCommand(s:split_type, s:final_command, s:parsed_input[s:FILE])
@@ -336,6 +346,8 @@ endfunction
   " echom "args: \"" . s:parsed_input[s:ARGS] . "\""
   " echom "extension: \"" . s:GetExtension(s:parsed_input[s:NAME]) . "\""
   " echom "execute_command: \"" . s:GetExecuteCommand(s:parsed_input) . "\""
+  " execute ':terminal g++ test.cpp -o test.out<CR> ./test.out'
+  " execute "terminal \<CR>g++ test.cpp -o test.out\<CR>./test.out\<CR>"
 " endfunction
 
 " nnoremap <leader>d :call g:Debug(2, "test.cpp")<CR>

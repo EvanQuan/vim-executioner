@@ -15,6 +15,7 @@ Table of Contents
 3. [Configure Executable Files](#configure-executable-files)
     - [Full and base name symbols](#full-and-base-name-symbols)
     - [Commands](#commands-1)
+4. [Frequently Asked Questions]
 
 ## Installation
 
@@ -153,18 +154,23 @@ by default defined as:
 " extension : command
 " Command is executed if file has specified extension
 let g:executioner#extensions = {
-                               \ 'c'  : 'gcc % -o @.out; ./@.out',
-                               \ 'cpp'  : 'g++ % -o @.out; ./@.out',
-                               \ 'R'  : 'Rscript %',
-                               \ 'r'  : 'Rscript %',
+                               \ 'c'  : 'gcc % -o @.out;./@.out',
+                               \ 'cpp'  : 'g++ % -o @.out;./@.out',
                                \ 'hs'  : 'ghci %',
                                \ 'js' : 'node %',
+                               \ 'm' : 'matlab',
+                               \ 'ml' : 'ocaml % -o @.out;./@.out',
                                \ 'php' : 'php %',
                                \ 'pl' : 'perl %',
                                \ 'prolog' : 'swipl %',
                                \ 'py' : 'python3 %',
                                \ 'py2' : 'python %',
+                               \ 'R'  : 'Rscript %',
+                               \ 'r'  : 'Rscript %',
+                               \ 'rb'  : 'ruby %',
+                               \ 'rc'  : 'rustc % -o @.out;./@.out',
                                \ 'sh' : 'bash %',
+                               \ 'swift'  : 'swiftc % -o @.out;./@.out',
                                \}
 
 " file name : command
@@ -191,3 +197,8 @@ to be executed with `python3` and `g:executioner#names` dictates that `foo.py`
 is to be executed with `python2`, then `foo.py` will be executed with
 `python2`.
 
+## Frequently Asked Questions
+
+How to run more complicated projects?
+- make
+- bash run.sh
