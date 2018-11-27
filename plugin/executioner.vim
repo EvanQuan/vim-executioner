@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.1.0
+" Version:    1.1.1
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " ============================================================================
@@ -273,6 +273,8 @@ function! s:SaveAndExecuteFile(...) abort
 
   " If no arguments are supplied then the split type defaults to NONE.
   " Otherwise, use the specified split type.
+  " Note: Temporary fix. If the command is multicommand (has semicolon),
+  " Then the split type is NONE.
   let s:split_type = a:0 > 0 ? a:1 : s:NONE
 
   " If no arguments after split type are specified, assume the current file
@@ -306,16 +308,16 @@ function! s:SaveAndExecuteFile(...) abort
     silent execute "update | edit"
   endif
 
+  " Switch to no split if multiple commands are being executed.
+  if s:execute_command =~ ';'
+    let s:split_type = s:NONE
+  endif
+
   " Evaluate split_type
   " If vertical or horizontal split, then create terminal or output buffer
   let s:split_prefix = s:GetSplitPrefix(s:split_type)
 
-  " TODO return here. Doesn't seem to work.
-  " Do temporary fix. Switch to no split.
   let s:final_command = s:split_prefix . s:execute_command
-  if s:split_type =~ ":vertical*" || s:split_type =~ ":terminal"
-    let s:final_command = s:Substitute(s:final_command, ';', "\<CR>")
-  endif
 
   " Finally execute command
   call s:ExecuteCommand(s:split_type, s:final_command, s:parsed_input[s:FILE])
