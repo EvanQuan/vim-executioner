@@ -3,7 +3,9 @@
 This plugin allows you to easily execute files in the terminal or a separate
 buffer.
 
-**NOTE: This plugin is currently in a pre-release state. It works at a basic level, but I don't feel like it is ready for its first "real" release. Functionality is currently being added and bugs are getting ironed out.**
+**NOTE: This plugin is currently in a pre-release state. It works at a basic
+level, but I don't feel like it is ready for its first "real" release.
+Functionality is currently being added and bugs are getting ironed out.**
 
 ![](https://raw.githubusercontent.com/wiki/EvanQuan/vim-executioner/executioner.PNG)
 
@@ -12,12 +14,10 @@ Table of Contents
 1. [Installation](#installation)
 2. [Usage](#usage)
     - [Commands](#commands)
-    - [Command line arguments](#command-line-arguments)
     - [Key mappings](#key-mappings)
 3. [Configure Executable Files](#configure-executable-files)
     - [Full and base name symbols](#full-and-base-name-symbols)
     - [Commands](#commands-1)
-4. [Frequently Asked Questions]
 
 ## Installation
 
@@ -65,18 +65,24 @@ This package comes with 3 commands:
 - `:ExecutionerHorizontal`
 - `:ExecutionerVertical`
 
-Each command takes the name of a file as an 1 optional argument. Without any
-arguments, the current buffer that is executing the command will be ran.
+Each command takes the name of a file as an 1 optional argument, optionally
+followed by any command-line arguments. Without any arguments, the current
+buffer that is executing the command will be ran with no arguments.
 
 For example:
-```
-:Executioner test.py
-```
-will attempt to execute `test.py` in the current working directory, while
 ```
 :Executioner
 ```
 will attempt to execute the current buffer.
+```
+:Executioner test.py
+```
+will attempt to execute `test.py` in the current working directory.
+```
+:Executioner test.py foo bar 4
+```
+will attempt to execute `test.py` in the current working directory, with the
+arguments `foo`, `bar` and `4`.
 
 If you running a version of Vim that has the integrated terminal feature (i.e.
 `:echo has("terminal")` returns 1), then the horizontal and vertical commands
@@ -84,15 +90,8 @@ open a terminal buffer to output the command, allowing for potential user
 input.
 
 Without the terminal feature available, the horizontal and vertical commands
-stores the output of the executed program in a readonly buffer. Due to this
+stores the output of the executed program in a read-only buffer. Due to this
 reason, it will not work for programs that require user input.
-
-#### Command line arguments
-
-You can pass in command line arguments for Executioner to use.
-
-For example, `:Executioner test.js arg1 arg2 arg3` will pass `arg1`, `arg2`,
-and `arg3` as arguments for the execution command on the file `test.js`.
 
 #### Key mappings
 
@@ -122,6 +121,9 @@ nnoremap <silent> <leader>hrm :ExecutionerHorizontal makefile<CR>
 nnoremap <silent> <leader>vrm :ExecutionerVertical makefile<CR>
 ```
 
+Due to the complexity of many projects that span a large number of files, I use
+makefiles and `run.sh` to compile and run code without needing to worry about
+what file I'm currently editing.
 
 ## Configure Executable Files
 
@@ -140,7 +142,7 @@ let g:executioner#base_name = '@'
 
 For example, if you want to run a C file by compiling it first, you can define
 its command as `'c'  : 'gcc % -o @.out; ./@.out'` in `g:executioner#commands`,
-which will compile a `.out` fie with the same base name as the source file,
+which will compile a `.out` file with the same base name as the source file,
 and then execute it.
 
 #### Commands
@@ -149,8 +151,8 @@ There are 2 dictionaries that define what types of files can be executed:
 
 With `g:executioner#extensions`, Executioner can execute a command based on the
 extension of a file name. With `g:executioner#names`, Executioner can execute
-a command based on a file name. If not defined in your `.vimrc`, they are
-by default defined as:
+a command based on a file name. If not defined in your `.vimrc`, they are by
+default defined as:
 
 ```vim
 " extension : command
@@ -198,9 +200,3 @@ to use. For example: if `g:executioner#extensions` dictates that `py` files are
 to be executed with `python3` and `g:executioner#names` dictates that `foo.py`
 is to be executed with `python2`, then `foo.py` will be executed with
 `python2`.
-
-## Frequently Asked Questions
-
-How to run more complicated projects?
-- make
-- bash run.sh
