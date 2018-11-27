@@ -3,6 +3,8 @@
 This plugin allows you to easily execute files in the terminal or a separate
 buffer.
 
+**NOTE: This plugin is currently in a pre-release state. It works at a basic level, but I don't feel like it is ready for its first "real" release. Functionality is currently being added and bugs are getting ironed out.**
+
 ![](https://raw.githubusercontent.com/wiki/EvanQuan/vim-executioner/executioner.PNG)
 
 Table of Contents
