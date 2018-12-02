@@ -29,20 +29,20 @@ git clone https://github.com/EvanQuan/vim-executioner.git ~/.vim/pack/plugin/sta
 
 #### [Vim-Plug](https://github.com/junegunn/vim-plug)
 
-1. Add `Plug 'EvanQuan/vim-executioner'` to your vimrc file.
-2. Reload your vimrc or restart.
+1. Add `Plug 'EvanQuan/vim-executioner'` to your `vimrc` file.
+2. Reload your `vimrc` or restart.
 3. Run `:PlugInstall`
 
 #### [Vundle](https://github.com/VundleVim/Vundle.vim)
 
-1. Add `Plugin 'EvanQuan/vim-executioner'` to your vimrc file.
-2. Reload your vimrc or restart.
+1. Add `Plugin 'EvanQuan/vim-executioner'` to your `vimrc` file.
+2. Reload your `vimrc` or restart.
 3. Run `:BundleInstall`
 
 #### [NeoBundle](https://github.com/Shougo/neobundle.vim)
 
-1. Add `NeoBundle 'EvanQuan/vim-executioner'` to your vimrc file.
-2. Reload your vimrc or restart.
+1. Add `NeoBundle 'EvanQuan/vim-executioner'` to your `vimrc` file.
+2. Reload your `vimrc` or restart.
 3. Run `:NeoUpdate`
 
 #### [Pathogen](https://github.com/tpope/vim-pathogen)
@@ -92,7 +92,7 @@ reason, it will not work for programs that require user input.
 #### Key mappings
 
 By default, Executioner does not provide any key mappings as to not override
-mappings defined in your `.vimrc`. You can map these commands to however you
+mappings defined in your `vimrc`. You can map these commands to however you
 like to make them easier to use.
 
 For example, I personally use:
@@ -128,7 +128,7 @@ what file I'm currently editing.
 You may want to refer to the full file name or base name in in your commands.
 The full file name, which is the base name with file extension, can be referred
 to by `g:executioner#full_name`, while the base name can be referred to by
-`g:executioner#base_name`, both which you can set in your `.vimrc`. By default
+`g:executioner#base_name`, both which you can set in your `vimrc`. By default
 they are defined as:
 
  ```vim
@@ -145,10 +145,36 @@ and then execute it.
 
 There are 2 dictionaries that define what types of files can be executed:
 
-With `g:executioner#extensions`, Executioner can execute a command based on the
-extension of a file name. With `g:executioner#names`, Executioner can execute
-a command based on a file name. If not defined in your `.vimrc`, they are by
-default defined as:
+`g:executioner#extensions` determines commands by file extension. For example,
+if you want to execute files with the `.foo` extension, such as
+`hello_world.foo`, with the `bar` command, (i.e. executing `bar
+hello_world.foo` in the terminal), then include:
+```vim
+let g:executioner#extensions['foo'] = 'bar %'
+```
+in your `vimrc`.
+
+`g:executioner#names` determines commands by file name. For example, if you want
+to execute files with the name `echo_me.txt` with the command `echo
+echo_me.txt`, then include:
+```vim
+let g:executioner#names['echo_me.txt'] = 'echo echo_me.txt'
+```
+in your `vimrc`.
+
+Executioner will prioritize names over extensions when determining what command
+to use. For example, if
+```vim
+let g:executioner#extension['py'] = 'python3 %'
+```
+dictates that `.py` files are to be executed with `python3` and
+```vim
+let g:executioner#names['foo.py'] = 'python2 foo.py'
+```
+dictates that `foo.py` is to be executed with `python2`, then `foo.py` will be
+executed with `python2`.
+
+These are the default commands:
 
 ```vim
 " extension : command
@@ -180,19 +206,11 @@ let g:executioner#names = {
                            \}
 ```
 
-`g:executioner#extensions` determines commands by file extension. For example,
-if you want to execute files with the `.foo` extension, such as
-`hello_world.foo`, with the `bar` command, (i.e. executing `bar
-hello_world.foo` in the terminal), then the value `'foo' : 'bar %'` must be
-included in this dictionary.
+As expected, if any of these extensions or file names are defined in your
+`vimrc`, they will take precedence over the defaults.
 
-`g:executioner#names` determines commands by file name. For example, if you want
-to execute files with the name `delete_me.txt` with the command `rm
-delete_me.txt`, then the value `'delete_me.txt' : 'rm delete_me.txt'` must be
-included in this dictionary.
-
-Executioner will prioritize names over extensions when determining what command
-to use. For example: if `g:executioner#extensions` dictates that `py` files are
-to be executed with `python3` and `g:executioner#names` dictates that `foo.py`
-is to be executed with `python2`, then `foo.py` will be executed with
-`python2`.
+If you wish to disable these defaults entirely, include:
+```vim
+let g:executioner#load_defaults = 0
+```
+in your `vimrc` and they will not be defined.

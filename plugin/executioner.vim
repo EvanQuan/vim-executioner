@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.1.2
+" Version:    1.2.0
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " ============================================================================
@@ -18,6 +18,10 @@ endif
 " Just name
 if !exists("g:executioner#base_name")
   let g:executioner#base_name = '@'
+endif
+
+if !exists("g:executioner#load_defaults")
+  let g:executioner#load_defaults = 1
 endif
 
 " Fake enums
@@ -37,36 +41,72 @@ let s:HORIZONTAL = 3
 let s:EXTENSION_COMMAND = 0
 let s:NAME_COMMAND = 1
 
-" extension : command
-" Command is executed if file has specified extension
-if !exists("g:executioner#extensions")
-  let g:executioner#extensions = {
-                                  \ 'c'  : 'gcc % -o @.out;./@.out',
-                                  \ 'cpp'  : 'g++ % -o @.out;./@.out',
-                                  \ 'hs'  : 'ghci %',
-                                  \ 'js' : 'node %',
-                                  \ 'm' : 'matlab',
-                                  \ 'ml' : 'ocaml % -o @.out;./@.out',
-                                  \ 'php' : 'php %',
-                                  \ 'pl' : 'perl %',
-                                  \ 'prolog' : 'swipl %',
-                                  \ 'py' : 'python %',
-                                  \ 'py2' : 'python2 %',
-                                  \ 'R'  : 'Rscript %',
-                                  \ 'r'  : 'Rscript %',
-                                  \ 'rb'  : 'ruby %',
-                                  \ 'rc'  : 'rustc % -o @.out;./@.out',
-                                  \ 'sh' : 'bash %',
-                                  \ 'swift'  : 'swiftc % -o @.out;./@.out',
-                                  \}
-endif
+if g:executioner#load_defaults
+  " extension : command
+  " Command is executed if file has specified extension
+  if !exists("g:executioner#extensions")
+    let g:executioner#extensions = {}
+  endif
+  if !has_key(g:executioner#extensions, 'c')
+    let g:executioner#extensions['c'] = 'gcc % -o @.out;./@.out'
+  endif
+  if !has_key(g:executioner#extensions, 'cpp')
+    let g:executioner#extensions['cpp'] = 'g++ % -o @.out;./@.out'
+  endif
+  if !has_key(g:executioner#extensions, 'hs')
+    let g:executioner#extensions['hs'] = 'ghci %'
+  endif
+  if !has_key(g:executioner#extensions, 'js')
+    let g:executioner#extensions['js'] = 'node %'
+  endif
+  if !has_key(g:executioner#extensions, 'm')
+    let g:executioner#extensions['m'] = 'matlab'
+  endif
+  if !has_key(g:executioner#extensions, 'ml')
+    let g:executioner#extensions['ml'] = 'ocaml % -o @.out;./@.out'
+  endif
+  if !has_key(g:executioner#extensions, 'php')
+    let g:executioner#extensions['php'] = 'php %'
+  endif
+  if !has_key(g:executioner#extensions, 'pl')
+    let g:executioner#extensions['pl'] = 'perl %'
+  endif
+  if !has_key(g:executioner#extensions, 'prolog')
+    let g:executioner#extensions['prolog'] = 'swipl %'
+  endif
+  if !has_key(g:executioner#extensions, 'py')
+    let g:executioner#extensions['py'] = 'python3 %'
+  endif
+  if !has_key(g:executioner#extensions, 'py2')
+    let g:executioner#extensions['py2'] = 'python2 %'
+  endif
+  if !has_key(g:executioner#extensions, 'R')
+    let g:executioner#extensions['R'] = 'Rscript %'
+  endif
+  if !has_key(g:executioner#extensions, 'r')
+    let g:executioner#extensions['r'] = 'Rscript %'
+  endif
+  if !has_key(g:executioner#extensions, 'rb')
+    let g:executioner#extensions['rb'] = 'ruby %'
+  endif
+  if !has_key(g:executioner#extensions, 'rc')
+    let g:executioner#extensions['rc'] = 'rustc % -o @.out;./@.out'
+  endif
+  if !has_key(g:executioner#extensions, 'sh')
+    let g:executioner#extensions['sh'] = 'bash %'
+  endif
+  if !has_key(g:executioner#extensions, 'swift')
+    let g:executioner#extensions['swift'] = 'swiftc % -o @.out;./@.out'
+  endif
 
-" file name : command
-" Command is executed if file has specified name
-if !exists("g:executioner#names")
-  let g:executioner#names = {
-                             \ 'makefile': 'make',
-                             \}
+  " file name : command
+  " Command is executed if file has specified name
+  if !exists("g:executioner#names")
+    let g:executioner#names = {}
+  endif
+  if !has_key(g:executioner#names, 'makefile')
+    let g:executioner#names['makefile'] = 'make'
+  endif
 endif
 
 function! s:SplitNameAndExtenstion(file) abort
