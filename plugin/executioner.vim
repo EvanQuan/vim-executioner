@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.1.1
+" Version:    1.1.2
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " ============================================================================
@@ -41,32 +41,32 @@ let s:NAME_COMMAND = 1
 " Command is executed if file has specified extension
 if !exists("g:executioner#extensions")
   let g:executioner#extensions = {
-                                 \ 'c'  : 'gcc % -o @.out;./@.out',
-                                 \ 'cpp'  : 'g++ % -o @.out;./@.out',
-                                 \ 'hs'  : 'ghci %',
-                                 \ 'js' : 'node %',
-                                 \ 'm' : 'matlab',
-                                 \ 'ml' : 'ocaml % -o @.out;./@.out',
-                                 \ 'php' : 'php %',
-                                 \ 'pl' : 'perl %',
-                                 \ 'prolog' : 'swipl %',
-                                 \ 'py' : 'python3 %',
-                                 \ 'py2' : 'python %',
-                                 \ 'R'  : 'Rscript %',
-                                 \ 'r'  : 'Rscript %',
-                                 \ 'rb'  : 'ruby %',
-                                 \ 'rc'  : 'rustc % -o @.out;./@.out',
-                                 \ 'sh' : 'bash %',
-                                 \ 'swift'  : 'swiftc % -o @.out;./@.out',
-                                 \}
+                                  \ 'c'  : 'gcc % -o @.out;./@.out',
+                                  \ 'cpp'  : 'g++ % -o @.out;./@.out',
+                                  \ 'hs'  : 'ghci %',
+                                  \ 'js' : 'node %',
+                                  \ 'm' : 'matlab',
+                                  \ 'ml' : 'ocaml % -o @.out;./@.out',
+                                  \ 'php' : 'php %',
+                                  \ 'pl' : 'perl %',
+                                  \ 'prolog' : 'swipl %',
+                                  \ 'py' : 'python %',
+                                  \ 'py2' : 'python2 %',
+                                  \ 'R'  : 'Rscript %',
+                                  \ 'r'  : 'Rscript %',
+                                  \ 'rb'  : 'ruby %',
+                                  \ 'rc'  : 'rustc % -o @.out;./@.out',
+                                  \ 'sh' : 'bash %',
+                                  \ 'swift'  : 'swiftc % -o @.out;./@.out',
+                                  \}
 endif
 
 " file name : command
 " Command is executed if file has specified name
 if !exists("g:executioner#names")
   let g:executioner#names = {
-                            \ 'makefile': 'make',
-                            \}
+                             \ 'makefile': 'make',
+                             \}
 endif
 
 function! s:SplitNameAndExtenstion(file) abort

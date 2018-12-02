@@ -3,10 +3,6 @@
 This plugin allows you to easily execute files in the terminal or a separate
 buffer.
 
-**NOTE: This plugin is currently in a pre-release state. It works at a basic
-level, but I don't feel like it is ready for its first "real" release.
-Functionality is currently being added and bugs are getting ironed out.**
-
 ![](https://raw.githubusercontent.com/wiki/EvanQuan/vim-executioner/executioner.PNG)
 
 Table of Contents
@@ -158,30 +154,30 @@ default defined as:
 " extension : command
 " Command is executed if file has specified extension
 let g:executioner#extensions = {
-                               \ 'c'  : 'gcc % -o @.out;./@.out',
-                               \ 'cpp'  : 'g++ % -o @.out;./@.out',
-                               \ 'hs'  : 'ghci %',
-                               \ 'js' : 'node %',
-                               \ 'm' : 'matlab',
-                               \ 'ml' : 'ocaml % -o @.out;./@.out',
-                               \ 'php' : 'php %',
-                               \ 'pl' : 'perl %',
-                               \ 'prolog' : 'swipl %',
-                               \ 'py' : 'python3 %',
-                               \ 'py2' : 'python %',
-                               \ 'R'  : 'Rscript %',
-                               \ 'r'  : 'Rscript %',
-                               \ 'rb'  : 'ruby %',
-                               \ 'rc'  : 'rustc % -o @.out;./@.out',
-                               \ 'sh' : 'bash %',
-                               \ 'swift'  : 'swiftc % -o @.out;./@.out',
-                               \}
+                                \ 'c'  : 'gcc % -o @.out;./@.out',
+                                \ 'cpp'  : 'g++ % -o @.out;./@.out',
+                                \ 'hs'  : 'ghci %',
+                                \ 'js' : 'node %',
+                                \ 'm' : 'matlab',
+                                \ 'ml' : 'ocaml % -o @.out;./@.out',
+                                \ 'php' : 'php %',
+                                \ 'pl' : 'perl %',
+                                \ 'prolog' : 'swipl %',
+                                \ 'py' : 'python %',
+                                \ 'py2' : 'python2 %',
+                                \ 'R'  : 'Rscript %',
+                                \ 'r'  : 'Rscript %',
+                                \ 'rb'  : 'ruby %',
+                                \ 'rc'  : 'rustc % -o @.out;./@.out',
+                                \ 'sh' : 'bash %',
+                                \ 'swift'  : 'swiftc % -o @.out;./@.out',
+                                \}
 
 " file name : command
 " Command is executed if file has specified name
 let g:executioner#names = {
-                          \ 'makefile': 'make',
-                          \}
+                           \ 'makefile': 'make',
+                           \}
 ```
 
 `g:executioner#extensions` determines commands by file extension. For example,
