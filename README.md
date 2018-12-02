@@ -165,7 +165,7 @@ in your `vimrc`.
 Executioner will prioritize names over extensions when determining what command
 to use. For example, if
 ```vim
-let g:executioner#extension['py'] = 'python3 %'
+let g:executioner#extensions['py'] = 'python3 %'
 ```
 dictates that `.py` files are to be executed with `python3` and
 ```vim
