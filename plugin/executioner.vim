@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.2.0
+" Version:    1.2.1
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " ============================================================================
@@ -41,12 +41,19 @@ let s:HORIZONTAL = 3
 let s:EXTENSION_COMMAND = 0
 let s:NAME_COMMAND = 1
 
+" extension : command
+" Command is executed if file has specified extension
+if !exists("g:executioner#extensions")
+  let g:executioner#extensions = {}
+endif
+
+" file name : command
+" Command is executed if file has specified name
+if !exists("g:executioner#names")
+  let g:executioner#names = {}
+endif
+
 if g:executioner#load_defaults
-  " extension : command
-  " Command is executed if file has specified extension
-  if !exists("g:executioner#extensions")
-    let g:executioner#extensions = {}
-  endif
   if !has_key(g:executioner#extensions, 'c')
     let g:executioner#extensions['c'] = 'gcc % -o @.out;./@.out'
   endif
@@ -99,11 +106,6 @@ if g:executioner#load_defaults
     let g:executioner#extensions['swift'] = 'swiftc % -o @.out;./@.out'
   endif
 
-  " file name : command
-  " Command is executed if file has specified name
-  if !exists("g:executioner#names")
-    let g:executioner#names = {}
-  endif
   if !has_key(g:executioner#names, 'makefile')
     let g:executioner#names['makefile'] = 'make'
   endif
