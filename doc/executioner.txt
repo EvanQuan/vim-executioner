@@ -22,7 +22,11 @@ CONTENTS                                                  *executioner-contents*
 ==============================================================================
 1. Intro                                                           *exeuctioner*
 
-TODO
+Exeuctioner is a plugin that allows you to easily execute files in the
+terminal or a separate buffer straight from Vim. You can find the most updated
+version of the plugin from:
+
+        https://github.com/EvanQuan/vim-executioner
 
 ==============================================================================
 2. Functionality                                     *exeuctioner-functionality*
@@ -50,28 +54,51 @@ TODO
 g:executioner#base_name                                *g:executioner#base_name*
 
 Type: |String|
-Default: `@`
+Default: `'@'`
 
 TODO
 
 g:executioner#full_name                                *g:executioner#full_name*
 
 Type: |String|
-Default: `%`
+Default: `'%'`
 
 TODO
 
 g:executioner#extensions                              *g:executioner#extensions*
 
-Type: |Dicionary|
-Default: `{}`
-
+Type: |Dictionary|
+    Key: |String|
+    Value: |String|
+    Default: >
+            {
+              'c'      : 'gcc % -o @.out;./@.out',
+              'cpp'    : 'g++ % -o @.out;./@.out',
+              'hs'     : 'ghci %',
+              'js'     : 'node %',
+              'm'      : 'matlab',
+              'ml'     : 'ocaml % -o @.out;./@.out',
+              'php'    : 'php %',
+              'pl'     : 'perl %',
+              'prolog' : 'swipl %',
+              'py'     : 'python %',
+              'py2'    : 'python2 %',
+              'R'      : 'Rscript %',
+              'r'      : 'Rscript %',
+              'rb'     : 'ruby %',
+              'rc'     : 'rustc % -o @.out;./@.out',
+              'sh'     : 'bash %',
+              'swift'  : 'swiftc % -o @.out;./@.out',
+            }
+<
 TODO
 
 g:executioner#names                                        *g:executioner#names*
 
-Type: |Dicionary|
-Default: `{}`
+Type: |Dictionary|
+    Key: |String|
+    Value: |String|
+Default: `{'makefile' : 'make'}`
 
 TODO
 
@@ -90,7 +117,10 @@ TODO
 ==============================================================================
 4. About                                                     *exeuctioner-about*
 
-TODO
+Executioner is authored by a poor Computer Science student studing at the
+University of Calgary, named Evan Quan (https://github.com/EvanQuan/).
+Aftering being exposed to a fair number of languages across his degree, Evan
+was often frustrated by a lack of unified means to execute his code in Vim.
 
 ------------------------------------------------------------------------------
 vim:tw=78:ts=8:ft=help:noet:expandtab
