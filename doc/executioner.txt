@@ -1,5 +1,4 @@
-*executioner.txt*                        A Vim plugin to easily execute files
-                                       in the terminal or a separate buffer.
+*executioner.txt*        For Vim version 8.1       Last change: 2018 December 21
 
             _____                    _   _                                     ~
            |  ___|                  | | (_)                                    ~
@@ -13,9 +12,85 @@
 ==============================================================================
 CONTENTS                                                  *executioner-contents*
 
+    1. Intro....................................|exeuctioner-intro|
+    2. Functionality............................|executioner-functionality|
+        2.1 Commands............................|executioner-commands|
+        2.2 Variables...........................|executioner-variables|
+    3. Mappings.................................|executioner-mappings|
+    4. About....................................|executioner-about|
 
 ==============================================================================
 1. Intro                                                           *exeuctioner*
-==============================================================================
 
-vim:tw=78:ts=8:ft=help:noet:nospell:expandtab
+TODO
+
+==============================================================================
+2. Functionality                                     *exeuctioner-functionality*
+
+TODO
+
+------------------------------------------------------------------------------
+2.1 Commands                                              *exeuctioner-commands*
+
+:Executioner [file] [args]                                        *:Executioner*
+
+TODO
+
+:ExecutionerHorizontal [file] [args]                    *:ExecutionerHorizontal*
+
+TODO
+
+:ExecutionerVertical [file] [args]                        *:ExecutionerVertical*
+
+TODO
+
+------------------------------------------------------------------------------
+2.2 Variables                                            *exeuctioner-variables*
+
+g:executioner#base_name                                *g:executioner#base_name*
+
+Type: |String|
+Default: `@`
+
+TODO
+
+g:executioner#full_name                                *g:executioner#full_name*
+
+Type: |String|
+Default: `%`
+
+TODO
+
+g:executioner#extensions                              *g:executioner#extensions*
+
+Type: |Dicionary|
+Default: `{}`
+
+TODO
+
+g:executioner#names                                        *g:executioner#names*
+
+Type: |Dicionary|
+Default: `{}`
+
+TODO
+
+g:executioner#load_defaults                        *g:executioner#load_defaults*
+
+Type: |Number|
+Default: `1`
+
+TODO
+
+==============================================================================
+3. Mappings                                               *exeuctioner-mappings*
+
+TODO
+
+==============================================================================
+4. About                                                     *exeuctioner-about*
+
+TODO
+
+------------------------------------------------------------------------------
+vim:tw=78:ts=8:ft=help:noet:expandtab
