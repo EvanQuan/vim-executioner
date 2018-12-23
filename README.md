@@ -102,21 +102,21 @@ For example, I personally use:
 ```vim
 " Run current buffer
 "
-nnoremap <silent> <leader>rf :Executioner<CR>
-nnoremap <silent> <leader>hrf :ExecutionerHorizontal<CR>
-nnoremap <silent> <leader>vrf :ExecutionerVertical<CR>
+nnoremap <silent> <leader>rf :Executioner<Return>
+nnoremap <silent> <leader>hrf :ExecutionerHorizontal<Return>
+nnoremap <silent> <leader>vrf :ExecutionerVertical<Return>
 
 " run.sh
 "
-nnoremap <silent> <leader>rr :Executioner run.sh<CR>
-nnoremap <silent> <leader>hrr :ExecutionerHorizontal run.sh<CR>
-nnoremap <silent> <leader>vrr :ExecutionerVertical run.sh<CR>
+nnoremap <silent> <leader>rr :Executioner run.sh<Return>
+nnoremap <silent> <leader>hrr :ExecutionerHorizontal run.sh<Return>
+nnoremap <silent> <leader>vrr :ExecutionerVertical run.sh<Return>
 
 " Makefile
 "
-nnoremap <silent> <leader>rm :Executioner makefile<CR>
-nnoremap <silent> <leader>hrm :ExecutionerHorizontal makefile<CR>
-nnoremap <silent> <leader>vrm :ExecutionerVertical makefile<CR>
+nnoremap <silent> <leader>rm :Executioner makefile<Return>
+nnoremap <silent> <leader>hrm :ExecutionerHorizontal makefile<Return>
+nnoremap <silent> <leader>vrm :ExecutionerVertical makefile<Return>
 ```
 
 Due to the complexity of many projects that span a large number of files, I use
@@ -148,65 +148,62 @@ and then execute it.
 There are 2 dictionaries that define what types of files can be executed:
 
 `g:executioner#extensions` determines commands by file extension. For example,
-if you want to execute files with the `.foo` extension, such as
-`hello_world.foo`, with the `bar` command, (i.e. executing `bar
-hello_world.foo` in the terminal), then include:
+if you want to execute files with the `py` extension, such as
+`hello_world.py`, with the `python` command, (i.e. executing `python
+hello_world.py` in the terminal), then include:
 ```vim
-let g:executioner#extensions['foo'] = 'bar %'
+let g:executioner#extensions['py'] = 'python %'
 ```
 in your `vimrc`.
 
-`g:executioner#names` determines commands by file name. For example, if you want
-to execute files with the name `echo_me.txt` with the command `echo
-echo_me.txt`, then include:
+`g:executioner#names` determines commands by file name. For example, if you
+want to execute files with the name `makefile` with the command `make`, then
+include:
 ```vim
-let g:executioner#names['echo_me.txt'] = 'echo echo_me.txt'
+let g:executioner#names['makefile'] = 'make'
 ```
 in your `vimrc`.
 
-Executioner will prioritize names over extensions when determining what command
-to use. For example, if
+Executioner will prioritize names over extensions when determining what
+command to use. For example, if
 ```vim
 let g:executioner#extensions['py'] = 'python3 %'
 ```
-dictates that `.py` files are to be executed with `python3` and
+dictates that `py` files are to be executed with `python3` and
 ```vim
 let g:executioner#names['foo.py'] = 'python2 foo.py'
 ```
 dictates that `foo.py` is to be executed with `python2`, then `foo.py` will be
 executed with `python2`.
 
-These are the default commands:
+Luckily, many of these commands are already defined so you don't need to do so
+yourself. These are the defaults:
 
-```vim
-" extension : command
-" Command is executed if file has specified extension
-let g:executioner#extensions = {
-                                \ 'c'  : 'gcc % -o @.out;./@.out',
-                                \ 'cpp'  : 'g++ % -o @.out;./@.out',
-                                \ 'hs'  : 'ghci %',
-                                \ 'js' : 'node %',
-                                \ 'm' : 'matlab',
-                                \ 'ml' : 'ocaml % -o @.out;./@.out',
-                                \ 'php' : 'php %',
-                                \ 'pl' : 'perl %',
-                                \ 'prolog' : 'swipl %',
-                                \ 'py' : 'python %',
-                                \ 'py2' : 'python2 %',
-                                \ 'R'  : 'Rscript %',
-                                \ 'r'  : 'Rscript %',
-                                \ 'rb'  : 'ruby %',
-                                \ 'rc'  : 'rustc % -o @.out;./@.out',
-                                \ 'sh' : 'bash %',
-                                \ 'swift'  : 'swiftc % -o @.out;./@.out',
-                                \}
+##### g:executioner#extensions
+| Extension | Command                   |
+|:---------:|:-------------------------:|
+| c         | gcc % -o @.out;./@out     |
+| cpp       | g++ % -o @.out;./@out     |
+| hs        | ghci %                    |
+| js        | node %                    |
+| m         | matlab                    |
+| ml        | ocaml % -o @.out;./@.out  |
+| php       | php %                     |
+| pl        | perl %                    |
+| prolog    | swipl %                   |
+| py        | python %                  |
+| py2       | python2 %                 |
+| R         | Rscript %                 |
+| r         | Rscript %                 |
+| rb        | ruby %                    |
+| rc        | rustc % -o @.out;./@.out  |
+| sh        | bash %                    |
+| swift     | swiftc % -o @.out;./@.out |
 
-" file name : command
-" Command is executed if file has specified name
-let g:executioner#names = {
-                           \ 'makefile': 'make',
-                           \}
-```
+##### g:executioner#names
+| Name     | Command  |
+|:--------:|:--------:|
+| makefile | make     |
 
 As expected, if any of these extensions or file names are defined in your
 `vimrc`, they will take precedence over the defaults.
