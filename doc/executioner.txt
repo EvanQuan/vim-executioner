@@ -1,4 +1,4 @@
-*executioner.txt*        For Vim version 8.1       Last change: 2018 December 21
+*executioner.txt*        For Vim version 8.1       Last change: 2018 December 23
 
             _____                    _   _                                     ~
            |  ___|                  | | (_)                                    ~
@@ -20,7 +20,7 @@ CONTENTS                                                  *executioner-contents*
     4. About....................................|executioner-about|
 
 ==============================================================================
-1. Intro                                                           *executioner*
+1. Intro                                                     *executioner-intro*
 
 Executioner is a plugin that allows you to easily execute files in the
 terminal or a separate buffer straight from Vim. You can find the most updated
