@@ -12,7 +12,7 @@
 ==============================================================================
 CONTENTS                                                  *executioner-contents*
 
-    1. Intro....................................|exeuctioner-intro|
+    1. Intro....................................|executioner-intro|
     2. Functionality............................|executioner-functionality|
         2.1 Commands............................|executioner-commands|
         2.2 Variables...........................|executioner-variables|
@@ -20,21 +20,21 @@ CONTENTS                                                  *executioner-contents*
     4. About....................................|executioner-about|
 
 ==============================================================================
-1. Intro                                                           *exeuctioner*
+1. Intro                                                           *executioner*
 
-Exeuctioner is a plugin that allows you to easily execute files in the
+Executioner is a plugin that allows you to easily execute files in the
 terminal or a separate buffer straight from Vim. You can find the most updated
 version of the plugin from:
 
         https://github.com/EvanQuan/vim-executioner
 
 ==============================================================================
-2. Functionality                                     *exeuctioner-functionality*
+2. Functionality                                     *executioner-functionality*
 
 TODO
 
 ------------------------------------------------------------------------------
-2.1 Commands                                              *exeuctioner-commands*
+2.1 Commands                                              *executioner-commands*
 
 :Executioner [file] [args]                                        *:Executioner*
 
@@ -49,22 +49,54 @@ TODO
 TODO
 
 ------------------------------------------------------------------------------
-2.2 Variables                                            *exeuctioner-variables*
+2.2 Variables                                            *executioner-variables*
 
 g:executioner#base_name                                *g:executioner#base_name*
 
 Type: |String|
 Default: `'@'`
 
-TODO
+This character represents the base name of the file to run without its
+extension. Whenever this character is present in |g:executioner#extensions| or
+|g:executioner#names|, it is replaced with the base name provided by the first
+argument of |:Exeuctioner|, |:ExecutionerHorizontal|, or
+|:ExecutionerVertical|.
 
+For example, if the file 'test.c' executed as follows: >
+
+        :Executioner test.c
+<
+and files with the "c" extension are executed as follows: >
+
+        let g:executioner#extensions['c'] = 'gcc % -o @.out;./@.out'
+<
+Then the following substitution will be made: >
+
+        gcc test.c -o test.out;./test.out
+<
 g:executioner#full_name                                *g:executioner#full_name*
 
 Type: |String|
 Default: `'%'`
 
-TODO
+This character represents the full name of the file to run with its extension.
+Whenever this character is present in |g:executioner#extensions| or
+|g:executioner#names|, it is replaced with the full name provided by the first
+argument of |:Exeuctioner|, |:ExecutionerHorizontal|, or
+|:ExecutionerVertical|.
 
+For example, if the file 'test.py' executed as follows: >
+
+        :Executioner test.py
+<
+and files with the "py" extension are executed as follows: >
+
+        let g:executioner#extensions['py'] = 'python %'
+<
+Then the following substitution will be made: >
+
+        python test.py
+<
 g:executioner#extensions                              *g:executioner#extensions*
 
 Type: |Dictionary|
@@ -110,12 +142,12 @@ Default: `1`
 TODO
 
 ==============================================================================
-3. Mappings                                               *exeuctioner-mappings*
+3. Mappings                                               *executioner-mappings*
 
 TODO
 
 ==============================================================================
-4. About                                                     *exeuctioner-about*
+4. About                                                     *executioner-about*
 
 Executioner is authored by a poor Computer Science student studing at the
 University of Calgary, named Evan Quan (https://github.com/EvanQuan/).
