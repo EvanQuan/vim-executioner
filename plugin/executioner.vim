@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.2.1
+" Version:    1.2.2
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " ============================================================================
@@ -9,7 +9,6 @@
 if exists("g:executioner#loaded")
   finish
 endif
-let g:executioner#loaded = 1
 
 " Name and extension
 if !exists("g:executioner#full_name")
@@ -31,6 +30,7 @@ let s:FILE = 0
 let s:NAME = 1
 let s:EXTENSION = 2
 let s:ARGS = 3
+let s:PATHLESS_NAME = 4
 
 " Split types
 let s:NONE = 0
@@ -40,6 +40,8 @@ let s:HORIZONTAL = 3
 " Command types
 let s:EXTENSION_COMMAND = 0
 let s:NAME_COMMAND = 1
+
+let s:DIRECTORY_SEPARATOR = '[/\\]'
 
 " extension : command
 " Command is executed if file has specified extension
@@ -143,12 +145,15 @@ endfunction
 
 function! s:GetExecuteCommand(parsed_input) abort
   " Parameters:
-  "   list parsed_input [string file, string name, string extension, string args]
+  "   list parsed_input [string file, string name, string extension,
+  "                      string args]
   " Returns:
   "   string the execute command of the parsed_input if executable
   "          "" if not executable
-  if has_key(g:executioner#names, a:parsed_input[s:FILE])
-    let s:command = g:executioner#names[a:parsed_input[s:FILE]]
+  if !filereadable(expand(s:parsed_input[s:FILE]))
+    let s:command = ""
+  elseif has_key(g:executioner#names, a:parsed_input[s:PATHLESS_NAME])
+    let s:command = g:executioner#names[a:parsed_input[s:PATHLESS_NAME]]
           \ . a:parsed_input[s:ARGS]
   elseif has_key(g:executioner#extensions, a:parsed_input[s:EXTENSION])
     let s:command = g:executioner#extensions[a:parsed_input[s:EXTENSION]]
@@ -190,7 +195,8 @@ function! s:ParseInput(file_with_args) abort
   " Parameters:
   "   string file_with_args - file name, optionally followed by arguments
   " Returns:
-  "   list [string file, string name, string extension, string arguments]
+  "   list [string file, string name, string extension, string arguments,
+  "         string pathless_name]
 
   " If no arguments supplied, then there is nothing to parse
   if len(a:file_with_args) == 0
@@ -209,12 +215,17 @@ function! s:ParseInput(file_with_args) abort
   " Split the file into its name and extension.
   let s:file = s:SplitNameAndExtenstion(s:file_with_extension)
 
+  " Remove path from name
+  let s:directories = split(s:file[0], s:DIRECTORY_SEPARATOR)
+  let s:pathless_name = s:directories[len(s:directories) - 1]
+
   " Remaining terms are arguments
   " Join all arguments back together with spaces
   let s:arguments = len(s:input_terms) > 1 ?
         \ " " . join(s:input_terms[1:], " ") : ""
 
-  return [s:file_with_extension, s:file[0], s:file[1], s:arguments]
+  return [s:file_with_extension, s:file[0], s:file[1], s:arguments,
+        \ s:pathless_name]
 endfunction
 
 function! s:GetSplitPrefix(split_type) abort
@@ -395,8 +406,27 @@ endfunction
 " endfunction
 
 " nnoremap <leader>d :call g:Debug(2, "test.cpp")<CR>
+"
+function! g:Test()
+  let s:string1 = 'foo/bar/file1.extension'
+  let s:string2 = 'foo\bar\file2.extension'
+
+  let s:split1 = split(s:string1, s:DIRECTORY_SEPARATOR)
+  let s:split2 = split(s:string2, s:DIRECTORY_SEPARATOR)
+
+  let s:name1 = s:split1[len(s:split1) - 1]
+  let s:name2 = s:split2[len(s:split2) - 1]
+
+  echom s:name1
+  echom s:name2
+endfunction
+
+nnoremap <leader>d :call g:Test()<CR>
+
 
 " Create commands
 command! -nargs=* Executioner           :call s:SaveAndExecuteFile(s:NONE, <q-args>)
 command! -nargs=* ExecutionerVertical   :call s:SaveAndExecuteFile(s:VERTICAL, <q-args>)
 command! -nargs=* ExecutionerHorizontal :call s:SaveAndExecuteFile(s:HORIZONTAL, <q-args>)
+
+let g:executioner#loaded = 1
