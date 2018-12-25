@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.2.2
+" Version:    1.2.3
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " ============================================================================
@@ -407,21 +407,21 @@ endfunction
 
 " nnoremap <leader>d :call g:Debug(2, "test.cpp")<CR>
 "
-function! g:Test()
-  let s:string1 = 'foo/bar/file1.extension'
-  let s:string2 = 'foo\bar\file2.extension'
+" function! g:Test()
+"   let s:string1 = 'foo/bar/file1.extension'
+"   let s:string2 = 'foo\bar\file2.extension'
 
-  let s:split1 = split(s:string1, s:DIRECTORY_SEPARATOR)
-  let s:split2 = split(s:string2, s:DIRECTORY_SEPARATOR)
+"   let s:split1 = split(s:string1, s:DIRECTORY_SEPARATOR)
+"   let s:split2 = split(s:string2, s:DIRECTORY_SEPARATOR)
 
-  let s:name1 = s:split1[len(s:split1) - 1]
-  let s:name2 = s:split2[len(s:split2) - 1]
+"   let s:name1 = s:split1[len(s:split1) - 1]
+"   let s:name2 = s:split2[len(s:split2) - 1]
 
-  echom s:name1
-  echom s:name2
-endfunction
+"   echom s:name1
+"   echom s:name2
+" endfunction
 
-nnoremap <leader>d :call g:Test()<CR>
+" nnoremap <leader>d :call g:Test()<CR>
 
 
 " Create commands
