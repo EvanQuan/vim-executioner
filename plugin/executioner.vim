@@ -1,9 +1,13 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.2.3
+" Version:    1.2.4
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
+" You can learn more about it with:
+"
+"     :help executioner
+"
 " ============================================================================
 
 if exists("g:executioner#loaded")
@@ -23,8 +27,6 @@ if !exists("g:executioner#load_defaults")
   let g:executioner#load_defaults = 1
 endif
 
-" Fake enums
-
 " Parsed input
 let s:FILE = 0
 let s:NAME = 1
@@ -42,6 +44,8 @@ let s:EXTENSION_COMMAND = 0
 let s:NAME_COMMAND = 1
 
 let s:DIRECTORY_SEPARATOR = '[/\\]'
+
+let s:has_teriminal = has("terminal")
 
 " extension : command
 " Command is executed if file has specified extension
@@ -181,11 +185,6 @@ function! s:Substitute(string, old, new) abort
   let s:new_string = ""
   for i in range(len(a:string))
     let s:new_string .= a:string[i] == a:old ? a:new : a:string[i]
-    " if a:string[i] == a:old
-    "   let s:new_string .= a:new
-    " else
-    "   let s:new_string .= a:string[i]
-    " endif
   endfor
   return s:new_string
 endfunction
@@ -236,10 +235,10 @@ function! s:GetSplitPrefix(split_type) abort
 
   " If terminal is available, use just the built-in terminal. Otherwise,
   " run the command in command-mode terminal and redirect output to buffer.
-  let s:split_prefix = has("terminal") && a:split_type != s:NONE ?
+  let s:split_prefix = s:has_teriminal && a:split_type != s:NONE ?
               \ (a:split_type == s:VERTICAL ? "vertical " : "") . "terminal "
         \ :
-              \ a:split_type != s:NONE ? "." : ""
+              \ (a:split_type != s:NONE ? "." : "")
                     \ . "!"
   return s:split_prefix
 endfunction
@@ -250,7 +249,7 @@ function! s:ExecuteCommand(split_type, final_command, file_name) abort
 
   " echom "in ExecuteCommand"
   " Check for terminal
-  if has("terminal")
+  if s:has_teriminal || (!s:has_teriminal && a:split_type == s:NONE)
     " echom "ExecuteCommand: has terminal"
     execute a:final_command
     " execute shellescape(a:final_command, 1)
@@ -258,7 +257,7 @@ function! s:ExecuteCommand(split_type, final_command, file_name) abort
   " echom "ExecuteCommand: no terminal"
 
   " Manually create a readonly buffer if terminal is not supported
-  elseif a:split_type != s:NONE
+  else
     let s:buffer_split = s:split_type == s:VERTICAL ? 'vertical' : 'botright'
 
     let s:output_buffer_name = "Output"
