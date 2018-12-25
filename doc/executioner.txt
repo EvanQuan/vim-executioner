@@ -1,4 +1,4 @@
-*executioner.txt*        For Vim version 8.1       Last change: 2018 December 23
+*executioner.txt*        For Vim version 8.1       Last change: 2018 December 25
 
             _____                    _   _                                     ~
            |  ___|                  | | (_)                                    ~
@@ -22,7 +22,6 @@ CONTENTS                                                  *executioner-contents*
         2.1 Commands............................|executioner-commands|
         2.2 Variables...........................|executioner-variables|
     3. Mappings.................................|executioner-mappings|
-    4. About....................................|executioner-about|
 
 ==============================================================================
 1. Intro                                                     *executioner-intro*
@@ -36,22 +35,39 @@ version of the plugin from:
 ==============================================================================
 2. Functionality                                     *executioner-functionality*
 
-TODO
+There are two aspects to this plugin: configuring files to be ran, and running
+them. The commands let you run files in a Vim session, while the variables let
+you configure how certain files are to be ran.
 
 ------------------------------------------------------------------------------
 2.1 Commands                                              *executioner-commands*
 
 :Executioner [file] [args]                                        *:Executioner*
 
-TODO
+The file will be executed in in a |shell|, where any output will be printed
+there.
 
 :ExecutionerHorizontal [file] [args]                    *:ExecutionerHorizontal*
 
-TODO
+If Vim has |terminal| window support, then the file will be executed in
+a horizontally-split terminal window. Once the program is completed, the
+output will be saved in a 'readonly' buffer.
+
+Otherwise, the file will be executed in a shell and its output will be saved
+in a horizontally-split 'readonly' buffer. The difference is that without
+|terminal| support, no input from the user can be made during the program's
+runtime.
 
 :ExecutionerVertical [file] [args]                        *:ExecutionerVertical*
 
-TODO
+If Vim has |terminal| window support, then the file will be executed in
+a vertically-split terminal window. Once the program is completed, the
+output will be saved in a 'readonly' buffer.
+
+Otherwise, the file will be executed in a shell and its output will be saved
+in a vertically-split 'readonly' buffer. The difference is that without
+|terminal| support, no input from the user can be made during the program's
+runtime.
 
 ------------------------------------------------------------------------------
 2.2 Variables                                            *executioner-variables*
@@ -128,7 +144,15 @@ Type: |Dictionary|
               'swift'  : 'swiftc % -o @.out;./@.out',
             }
 <
-TODO
+This determines commands by file extension. For example, if you want to
+execute files with the `py` extension, such as `hello_world.py`, with the
+`python` command, (i.e. executing `python hello_world.py` in the terminal),
+then include: >
+
+        let g:executioner#extensions['py'] = 'python %'
+<
+in your |vimrc|.
+
 
 g:executioner#names                                        *g:executioner#names*
 
@@ -137,27 +161,57 @@ Type: |Dictionary|
     Value: |String|
 Default: `{'makefile' : 'make'}`
 
-TODO
+This determines commands by file name. For example, if you want to execute
+files with the name `makefile` with the command `make`, then include: >
+
+        let g:executioner#names['makefile'] = 'make'
+<
+in your |vimrc|.
+
 
 g:executioner#load_defaults                        *g:executioner#load_defaults*
 
 Type: |Number|
 Default: `1`
 
-TODO
+If you wish to disable the default values of |g:executioner#extensions| and
+|g:executioner#names| entirely, then include: >
+
+        let g:executioner#load_defaults = 0
+<
+in your |vimrc|.
 
 ==============================================================================
 3. Mappings                                               *executioner-mappings*
 
-TODO
+By default, Executioner does not provide any key mappings as to not override
+mappings defined in your |vimrc|. You can map these commands to however you
+like to make them easier to use.
 
-==============================================================================
-4. About                                                     *executioner-about*
+For example, I personally use: >
 
-Executioner is authored by a poor Computer Science student studing at the
-University of Calgary, named Evan Quan (https://github.com/EvanQuan/).
-Aftering being exposed to a fair number of languages across his degree, Evan
-was often frustrated by a lack of unified means to execute his code in Vim.
+    " Run current buffer
+    "
+    nnoremap <silent> <leader>rf :Executioner<Return>
+    nnoremap <silent> <leader>hrf :ExecutionerHorizontal<Return>
+    nnoremap <silent> <leader>vrf :ExecutionerVertical<Return>
+
+    " run.sh
+    "
+    nnoremap <silent> <leader>rr :Executioner run.sh<Return>
+    nnoremap <silent> <leader>hrr :ExecutionerHorizontal run.sh<Return>
+    nnoremap <silent> <leader>vrr :ExecutionerVertical run.sh<Return>
+
+    " Makefile
+    "
+    nnoremap <silent> <leader>rm :Executioner makefile<Return>
+    nnoremap <silent> <leader>hrm :ExecutionerHorizontal makefile<Return>
+    nnoremap <silent> <leader>vrm :ExecutionerVertical makefile<Return>
+<
+
+Due to the complexity of many projects that span a large number of files,
+I use makefiles and `run.sh` to compile and run large projects without needing
+to worry about what file I'm currently editing.
 
 ------------------------------------------------------------------------------
 vim:tw=78:ts=8:ft=help:noet:expandtab

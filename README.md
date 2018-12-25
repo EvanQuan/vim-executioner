@@ -119,19 +119,19 @@ nnoremap <silent> <leader>hrm :ExecutionerHorizontal makefile<Return>
 nnoremap <silent> <leader>vrm :ExecutionerVertical makefile<Return>
 ```
 
-Due to the complexity of many projects that span a large number of files, I use
-makefiles and `run.sh` to compile and run code without needing to worry about
-what file I'm currently editing.
+Due to the complexity of many projects that span a large number of files,
+I use makefiles and `run.sh` to compile and run code without needing to worry
+about what file I'm currently editing.
 
 ## Configure Executable Files
 
 #### Full and base name symbols
 
 You may want to refer to the full file name or base name in in your commands.
-The full file name, which is the base name with file extension, can be referred
-to by `g:executioner#full_name`, while the base name can be referred to by
-`g:executioner#base_name`, both which you can set in your `vimrc`. By default
-they are defined as:
+The full file name, which is the base name with file extension, can be
+referred to by `g:executioner#full_name`, while the base name can be referred
+to by `g:executioner#base_name`, both which you can set in your `vimrc`. By
+default they are defined as:
 
  ```vim
 let g:executioner#full_name = '%'
