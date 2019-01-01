@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.2.4
+" Version:    1.3.0
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " You can learn more about it with:
@@ -40,8 +40,7 @@ let s:VERTICAL = 1
 let s:HORIZONTAL = 3
 
 " Command types
-let s:EXTENSION_COMMAND = 0
-let s:NAME_COMMAND = 1
+let s:INVALID_COMMAND = -1
 
 let s:DIRECTORY_SEPARATOR = '[/\\]'
 
@@ -68,6 +67,9 @@ if g:executioner#load_defaults
   endif
   if !has_key(g:executioner#extensions, 'hs')
     let g:executioner#extensions['hs'] = 'ghci %'
+  endif
+  if !has_key(g:executioner#extensions, 'java')
+    let g:executioner#extensions['java'] = 'javac %;java @'
   endif
   if !has_key(g:executioner#extensions, 'js')
     let g:executioner#extensions['js'] = 'node %'
@@ -154,8 +156,8 @@ function! s:GetExecuteCommand(parsed_input) abort
   " Returns:
   "   string the execute command of the parsed_input if executable
   "          "" if not executable
-  if !filereadable(expand(s:parsed_input[s:FILE]))
-    let s:command = ""
+  if !filereadable(expand(a:parsed_input[s:FILE]))
+    let s:command = s:INVALID_COMMAND
   elseif has_key(g:executioner#names, a:parsed_input[s:PATHLESS_NAME])
     let s:command = g:executioner#names[a:parsed_input[s:PATHLESS_NAME]]
           \ . a:parsed_input[s:ARGS]
@@ -163,12 +165,12 @@ function! s:GetExecuteCommand(parsed_input) abort
     let s:command = g:executioner#extensions[a:parsed_input[s:EXTENSION]]
           \ . a:parsed_input[s:ARGS]
   else
-    let s:command = ""
+    let s:command = s:INVALID_COMMAND
   endif
 
   " Substitute symbols
   let s:command = s:Substitute(s:command, g:executioner#base_name,
-        \ s:parsed_input[s:NAME])
+        \ a:parsed_input[s:NAME])
   let s:command = s:Substitute(s:command, g:executioner#full_name,
         \ a:parsed_input[s:FILE])
   return s:command
@@ -227,129 +229,136 @@ function! s:ParseInput(file_with_args) abort
         \ s:pathless_name]
 endfunction
 
-function! s:GetSplitPrefix(split_type) abort
-  " Determine split_prefix based on if terminal is support and on split_type.
-  " At this point, it is assumed a valid command is being processed.
-  " This is important because if there is not terminal support, the readonly
-  " buffers for splitting need to be created manually.
-
-  " If terminal is available, use just the built-in terminal. Otherwise,
-  " run the command in command-mode terminal and redirect output to buffer.
-  let s:split_prefix = s:has_teriminal && a:split_type != s:NONE ?
-              \ (a:split_type == s:VERTICAL ? "vertical " : "") . "terminal "
-        \ :
-              \ (a:split_type != s:NONE ? "." : "")
-                    \ . "!"
-  return s:split_prefix
+function! s:ExecuteCommandShell(execute_command)
+  execute "!" . a:execute_command
 endfunction
 
-function! s:ExecuteCommand(split_type, final_command, file_name) abort
-  " Split type is only needed for non-terminal to determine how buffer is
-  " split
+function! s:GetSplitPrefixTerminal(split_type, execute_command)
+  return (a:split_type == s:VERTICAL ? "vertical " : "") . "terminal "
+endfunction
 
-  " echom "in ExecuteCommand"
-  " Check for terminal
-  if s:has_teriminal || (!s:has_teriminal && a:split_type == s:NONE)
-    " echom "ExecuteCommand: has terminal"
-    execute a:final_command
-    " execute shellescape(a:final_command, 1)
-    " echom "final_command: " . s:final_command
-  " echom "ExecuteCommand: no terminal"
+function! s:GetSplitPrefixBuffer(split_type)
+  return (a:split_type == s:NONE ? "" : ".") . "!"
+endfunction
 
-  " Manually create a readonly buffer if terminal is not supported
-  else
-    let s:buffer_split = s:split_type == s:VERTICAL ? 'vertical' : 'botright'
+function! s:ExecuteCommandTerminal(split_type, execute_command) abort
+  execute  s:GetSplitPrefixTerminal(a:split_type, a:execute_command) . a:execute_command
+endfunction
 
-    let s:output_buffer_name = "Output"
-    let s:output_buffer_filetype = "output"
-    " reuse existing buffer window if it exists otherwise create a new one
-    if !exists("s:buf_nr") || !bufexists(s:buf_nr)
-      silent execute s:buffer_split . ' new ' . s:output_buffer_name
-      let s:buf_nr = bufnr('%')
-    elseif bufwinnr(s:buf_nr) == -1
-      silent execute s:buffer_split . ' new'
-      silent execute s:buf_nr . 'buffer'
-    elseif bufwinnr(s:buf_nr) != bufwinnr('%')
-      silent execute bufwinnr(s:buf_nr) . 'wincmd w'
-    endif
-
-    silent execute "setlocal filetype=" . s:output_buffer_filetype
-    setlocal bufhidden=delete
-    setlocal buftype=nofile
-    setlocal noswapfile
-    setlocal nobuflisted
-    setlocal winfixheight
-    setlocal cursorline " make it easy to distinguish
-    setlocal nonumber
-    setlocal norelativenumber
-    setlocal showbreak=""
-
-    " clear the buffer and make it modifiable for terminal output
-    setlocal noreadonly
-    setlocal modifiable
-    %delete _
-
-    echon 'Executing ' . a:file_name . ' ... '
-    " Execute file
-    execute a:final_command
-
-    " resize window to content length
-    " Note: This is annoying because if you print a lot of lines then your
-    "       code buffer is forced to a height of one line every time you execute
-    "       this function.
-    "       However without this line the buffer starts off as a default size
-    "       and if you resize the buffer then it keeps that custom size after
-    "       repeated executes of this function.
-    "       But if you close the output buffer then it returns to using the
-    "       default size when its recreated
-    " execute 'resize' . line('$')
-
-    " make the buffer non modifiable
-    setlocal readonly
-    setlocal nomodifiable
+function! s:OpenBufferIfNotExists(split_type)
+  let output_buffer_name = "Output"
+  let buffer_split = a:split_type == s:VERTICAL ? 'vertical' : 'botright'
+  " reuse existing buffer window if it exists otherwise create a new one
+  if !exists("s:buffer_number") || !bufexists(s:buffer_number)
+    silent execute buffer_split . ' new ' . output_buffer_name
+    let s:buffer_number = bufnr('%')
+  elseif bufwinnr(s:buffer_number) == -1
+    silent execute buffer_split . ' new'
+    silent execute s:buffer_number . 'buffer'
+  elseif bufwinnr(s:buffer_number) != bufwinnr('%')
+    silent execute bufwinnr(s:buffer_number) . 'wincmd w'
   endif
 endfunction
 
+function! s:ConfigureBuffer()
+  let output_buffer_filetype = "output"
+  silent execute "setlocal filetype=" . output_buffer_filetype
+  setlocal bufhidden=delete
+  setlocal buftype=nofile
+  setlocal noswapfile
+  setlocal nobuflisted
+  setlocal winfixheight
+  setlocal cursorline " make it easy to distinguish
+  setlocal nonumber
+  setlocal norelativenumber
+  setlocal showbreak=""
+endfunction
+
+function! s:SetBufferModifiable()
+  " clear the buffer and make it modifiable for terminal output
+  setlocal noreadonly
+  setlocal modifiable
+  %delete _
+endfunction
+
+function s:ExecuteCommandInBuffer(split_type, execute_command, file_name)
+  echon 'Executing ' . a:file_name . ' ... '
+  " Execute file
+  execute s:GetSplitPrefixBuffer(a:split_type) . a:execute_command
+endfunction
+
+function s:SetBufferReadOnly()
+  " resize window to content length
+  " Note: This is annoying because if you print a lot of lines then your
+  "       code buffer is forced to a height of one line every time you execute
+  "       this function.
+  "       However without this line the buffer starts off as a default size
+  "       and if you resize the buffer then it keeps that custom size after
+  "       repeated executes of this function.
+  "       But if you close the output buffer then it returns to using the
+  "       default size when its recreated
+  " execute 'resize' . line('$')
+
+  " make the buffer non modifiable
+  setlocal readonly
+  setlocal nomodifiable
+endfunction
+
+function! s:ExecuteCommandBuffer(split_type, execute_command, file_name) abort
+  call s:OpenBufferIfNotExists(a:split_type)
+  call s:ConfigureBuffer()
+  call s:SetBufferModifiable()
+  call s:ExecuteCommandInBuffer(a:split_type, a:execute_command, a:file_name)
+  call s:SetBufferReadOnly()
+endfunction
+
+function! s:ExecuteCommand(split_type, execute_command, file_name) abort
+  if a:split_type == s:NONE || (s:has_teriminal && a:execute_command =~ ';')
+    call s:ExecuteCommandShell(a:execute_command)
+  elseif s:has_teriminal
+    call s:ExecuteCommandTerminal(a:split_type, a:execute_command)
+  else
+    call s:ExecuteCommandBuffer(a:split_type, a:execute_command, a:file_name)
+  endif
+endfunction
+
+function! s:ParseArgs(has_teriminal, split_type, file_with_args)
+  let s:has_teriminal = a:has_teriminal
+
+  " Note: Temporary fix. If the command is multicommand (has semicolon),
+  " Then the split type is changed to NONE later on
+  let s:split_type = a:split_type
+
+  " If no arguments after split type are specified, assume the current file
+  " is being ran with no arguments.
+  " Otherwise, assume the first argument is the file to be ran.
+  let s:file_with_args = a:file_with_args != "" ? a:file_with_args : expand("%")
+endfunction
 
 function! s:SaveAndExecuteFile(...) abort
+  " Since the user is not directly calling this, all arguments are guarenteed
   " Parameters:
-  "   a:1 char split_type
+  "   a:1 int has_teriminal
+  "   a:2 char split_type
   "     s:NONE - No split (default)
   "     s:HORIZONTAL - Horizontal split
   "     s:VERTICAL - Vertical split
-  "   a:2 string file_with_args
+  "   a:3 string file_with_args
   "     default - current file
   "
   " SOURCE [reusable window]:
   " https://github.com/fatih/vim-go/blob/master/autoload/go/ui.vim
 
-  " If no arguments are supplied then the split type defaults to NONE.
-  " Otherwise, use the specified split type.
-  " Note: Temporary fix. If the command is multicommand (has semicolon),
-  " Then the split type is NONE.
-  let s:split_type = a:0 > 0 ? a:1 : s:NONE
-
-  " If no arguments after split type are specified, assume the current file
-  " is being ran with no arguments.
-  " Otherwise, assume the first argument is the file to be ran.
-  let s:file_with_args = a:0 > 1 && a:2 != "" ? a:2 : expand("%")
-
-  " DEBUG
-  " echom "a0: " . a:0
-  " echom "a1: " . (a:0 > 0 ? a:1 : "no a1")
-  " echom "a2: " . (a:0 > 1 ? a:2 : "no a2")
-  " echom "s:split_type: " . s:split_type
-  " echom "s:file_with_args: " . s:file_with_args
+  call s:ParseArgs(a:1, a:2, a:3)
 
   " If not split, then output is terminal
   " Otherwise, the output replaces the current buffer contents
-  let s:parsed_input = s:ParseInput(s:file_with_args)
-  let s:execute_command = s:GetExecuteCommand(s:parsed_input)
+  let parsed_input = s:ParseInput(s:file_with_args)
+  let execute_command = s:GetExecuteCommand(parsed_input)
 
-  " echom "s:execute_command: " . s:execute_command
   " If invalid execute_command then return early with error message
-  if s:execute_command == ""
-    execute "echo \"'" . s:parsed_input[s:NAME]
+  if execute_command == s:INVALID_COMMAND
+    execute "echo \"'" . parsed_input[s:NAME]
           \ . "' is not configured to be executable.\""
     return -1
   endif
@@ -360,72 +369,16 @@ function! s:SaveAndExecuteFile(...) abort
     silent execute "update | edit"
   endif
 
-  " Switch to no split if multiple commands are being executed.
-  if s:execute_command =~ ';'
-    let s:split_type = s:NONE
-  endif
-
-  " Evaluate split_type
-  " If vertical or horizontal split, then create terminal or output buffer
-  let s:split_prefix = s:GetSplitPrefix(s:split_type)
-
-  let s:final_command = s:split_prefix . s:execute_command
-
   " Finally execute command
-  call s:ExecuteCommand(s:split_type, s:final_command, s:parsed_input[s:FILE])
+  call s:ExecuteCommand(s:split_type, execute_command, parsed_input[s:FILE])
 endfunction
-
-" function! g:Debug(...) abort
-"   " let s:file_with_args = a:0 > 1 && a:2 != "" ? a:2 : expand("%")
-
-"   " let s:parsed_input = s:ParseInput(s:file_with_args)
-"   " let s:execute_command = s:GetExecuteCommand(s:parsed_input)
-"   let s:in = "% -debug % @"
-"   " echom s:execute_command
-"   let s:parsed_input = s:ParseInput(s:in)
-
-"   echom "file: ". s:parsed_input[s:FILE]
-"   echom "name: ". s:parsed_input[s:NAME]
-"   echom "extension: ". s:parsed_input[s:EXTENSION]
-"   echom "args: ". s:parsed_input[s:ARGS]
-
-"   let s:command = s:GetExecuteCommand(s:parsed_input)
-
-"   echom "command: " . s:command
-
-  " let s:file_name = split("test.py", '.')[0]
-  " echom s:file_name[0]
-  " let s:parsed_input = s:ParseInput("test.py a1 --a2 -a3")
-  " echom "file_name: \"" . s:parsed_input[s:NAME] . "\""
-  " echom "args: \"" . s:parsed_input[s:ARGS] . "\""
-  " echom "extension: \"" . s:GetExtension(s:parsed_input[s:NAME]) . "\""
-  " echom "execute_command: \"" . s:GetExecuteCommand(s:parsed_input) . "\""
-  " execute ':terminal g++ test.cpp -o test.out<CR> ./test.out'
-  " execute "terminal \<CR>g++ test.cpp -o test.out\<CR>./test.out\<CR>"
-" endfunction
-
-" nnoremap <leader>d :call g:Debug(2, "test.cpp")<CR>
-"
-" function! g:Test()
-"   let s:string1 = 'foo/bar/file1.extension'
-"   let s:string2 = 'foo\bar\file2.extension'
-
-"   let s:split1 = split(s:string1, s:DIRECTORY_SEPARATOR)
-"   let s:split2 = split(s:string2, s:DIRECTORY_SEPARATOR)
-
-"   let s:name1 = s:split1[len(s:split1) - 1]
-"   let s:name2 = s:split2[len(s:split2) - 1]
-
-"   echom s:name1
-"   echom s:name2
-" endfunction
-
-" nnoremap <leader>d :call g:Test()<CR>
 
 
 " Create commands
-command! -nargs=* Executioner           :call s:SaveAndExecuteFile(s:NONE, <q-args>)
-command! -nargs=* ExecutionerVertical   :call s:SaveAndExecuteFile(s:VERTICAL, <q-args>)
-command! -nargs=* ExecutionerHorizontal :call s:SaveAndExecuteFile(s:HORIZONTAL, <q-args>)
+command! -nargs=* Executioner                 :call s:SaveAndExecuteFile(s:has_teriminal, s:NONE, <q-args>)
+command! -nargs=* ExecutionerVertical         :call s:SaveAndExecuteFile(s:has_teriminal, s:VERTICAL, <q-args>)
+command! -nargs=* ExecutionerHorizontal       :call s:SaveAndExecuteFile(s:has_teriminal, s:HORIZONTAL, <q-args>)
+command! -nargs=* ExecutionerVerticalBuffer   :call s:SaveAndExecuteFile(0, s:VERTICAL, <q-args>)
+command! -nargs=* ExecutionerHorizontalBuffer :call s:SaveAndExecuteFile(0, s:HORIZONTAL, <q-args>)
 
 let g:executioner#loaded = 1

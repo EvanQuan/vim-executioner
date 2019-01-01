@@ -1,6 +1,6 @@
 # :sunrise_over_mountains: vim-executioner
 
-This plugin allows you to easily execute files in the terminal or a separate
+This plugin allows you to execute files in a terminal window or a separate
 buffer.
 
 ![](https://raw.githubusercontent.com/wiki/EvanQuan/vim-executioner/executioner.PNG)
@@ -55,41 +55,110 @@ git clone https://github.com/EvanQuan/vim-executioner.git ~/.vim/bundle/vim-exec
 
 #### Commands
 
-This package comes with 3 commands:
+This plugin comes with 5 commands:
 
-- `:Executioner`
-- `:ExecutionerHorizontal`
-- `:ExecutionerVertical`
-
-Each command takes the name of a file as an 1 optional argument, optionally
+Each command takes the name of a file as an optional argument, optionally
 followed by any command-line arguments. Without any arguments, the current
 buffer that is executing the command will be ran with no arguments.
 
+##### :Executioner
+
+The file will be executed in a shell, where any output will be printed there.
 For example:
 ```
 :Executioner
 ```
-will attempt to execute the current buffer.
+will attempt to execute the current buffer with no command-line arguments.
 ```
 :Executioner test.py
 ```
-will attempt to execute `test.py` in the current working directory.
+will attempt to execute `test.py` in the current working directory with no
+command-line arguments.
 ```
 :Executioner test.py foo bar 4
 ```
 will attempt to execute `test.py` in the current working directory, with the
-arguments `foo`, `bar` and `4`.
+command-line arguments `foo`, `bar` and `4`.
 
-If you running a version of Vim that has the integrated terminal feature (i.e.
-`:echo has("terminal")` returns 1), then the horizontal and vertical commands
-open a terminal buffer to output the command, allowing for potential user
-input.
+##### :ExecutionerHorizontal
+
+If Vim has `terminal` window support, then the file will be executed in
+a horizontally-split terminal window. Once the program execution is completed,
+the output will be saved in a 'readonly' buffer.
+
+Otherwise, the file will be executed in a shell and its output will be saved
+in a horizontally-split 'readonly' buffer. The difference is that without
+|terminal| support, no input from the user can be made during the program's
+runtime.
+
+##### :ExecutionerHorizontalBuffer
+
+Same as `:ExecutionerHorizontal` with no |terminal| window support, forcing
+a shell to execute the file and save the output in a horizontally-split
+'readonly' buffer.
+
+##### :ExecutionerVertical
+
+If Vim has `terminal` window support, then the file will be executed in
+a vertically-split terminal window. Once the program execution is completed,
+the output will be saved in a 'readonly' buffer.
+
+Otherwise, the file will be executed in a shell and its output will be saved
+in a vertically-split 'readonly' buffer. The difference is that without
+`terminal` support, no input from the user can be made during the program's
+runtime.
+
+##### :ExecutionerVerticalBuffer
+
+Same as `:ExecutionerVertical` with no `terminal` window support, forcing
+a shell to execute the file and save the output in a vertically-split
+'readonly' buffer.
+
+#### Terminal Window vs. Buffer
+
+There are advantages and disadvantages to using either the terminal or buffer
+for split window execution. Perhaps some day in the future this distinction
+will no longer exist and there will be a unified solution.
+
+|      | Terminal | Buffer |
+|:----:|:--------:|:------:|
+| Pros | - Accepts standard input from user <br> - Prints standard output during program execution | - Can execute multiple commands directly <br> - Accepts standard input and output redirection |
+| Cons | - Cannot execute multiple commands directly <br> - Does not accept standard input and output redirection | - Does not accept standard input from user <br> - Prints standard output after program execution is complete |
+
+##### Standard Input and Standard Output
+
+If you running a version of Vim that has terminal window support, (i.e. `:echo
+has("terminal")` returns `1`), then the horizontal and vertical commands open
+an interactive terminal window which updates live as the program is being
+executed. This allows for user input from standard input, and displaying of
+standard output as it is being printed.
 
 Without the terminal feature available, the horizontal and vertical commands
-stores the output of the executed program in a read-only buffer. Due to this
-reason, it will not work for programs that require user input.
+run the program until completion, and store the standard output of the
+executed program in a read-only buffer. Due to this reason, it will not work
+for programs that require user input and will not update the standard output
+over the course of the program execution.
 
-#### Key mappings
+##### Multiple Commands
+
+Certain file types that involve multiple commands to be executed, such as
+compiling before executing, do not work with terminal windows. This is because
+terminal windows treat every space-separated term after the first argument as
+command-line arguments, including ones that end with `;`.
+
+Any terminal window command that involves multiple commands will fall back to
+the buffer equivalent if multiple commands are found.
+
+##### Input and Output Redirection
+
+For the same reason as multiple commands, terminal windows treat every
+space-separated term after the first argument as a command-line argument,
+including `>`, `<`, and `|` characters.
+
+Any terminal window command that involves input redirection will fall back to
+the buffer equivalent if input redirection operators are found.
+
+#### Key Mappings
 
 By default, Executioner does not provide any key mappings as to not override
 mappings defined in your `vimrc`. You can map these commands to however you
@@ -103,6 +172,12 @@ For example, I personally use:
 nnoremap <silent> <leader>rf :Executioner<Return>
 nnoremap <silent> <leader>hrf :ExecutionerHorizontal<Return>
 nnoremap <silent> <leader>vrf :ExecutionerVertical<Return>
+
+" Run current buffer with input redirected from input.txt
+"
+nnoremap <silent> <leader>ri :ExecutionerBuffer % < input.txt<Return>
+nnoremap <silent> <leader>hri :ExecutionerHorizontalBuffer % < input.txt<Return>
+nnoremap <silent> <leader>vri :ExecutionerVerticalBuffer % < input.txt<Return>
 
 " run.sh
 "
@@ -183,6 +258,7 @@ yourself. These are the defaults:
 | c         | gcc % -o @.out;./@out     |
 | cpp       | g++ % -o @.out;./@out     |
 | hs        | ghci %                    |
+| java      | javac %;java @            |
 | js        | node %                    |
 | m         | matlab                    |
 | ml        | ocaml % -o @.out;./@.out  |
