@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.3.0
+" Version:    1.3.1
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " You can learn more about it with:
@@ -15,11 +15,11 @@ if exists("g:executioner#loaded")
 endif
 
 " Name and extension
-if !exists("g:executioner#full_name")
+if !exists("g:executioner#full_name") || len(g:executioner#full_name) != 1
   let g:executioner#full_name = '%'
 endif
 " Just name
-if !exists("g:executioner#base_name")
+if !exists("g:executioner#base_name") || len(g:executioner#base_name) != 1
   let g:executioner#base_name = '@'
 endif
 
@@ -60,58 +60,58 @@ endif
 
 if g:executioner#load_defaults
   if !has_key(g:executioner#extensions, 'c')
-    let g:executioner#extensions['c'] = 'gcc % -o @.out;./@.out'
+    let g:executioner#extensions['c'] = 'gcc ' . g:executioner#full_name . ' -o ' . g:executioner#base_name . '.out;./' . g:executioner#base_name . '.out'
   endif
   if !has_key(g:executioner#extensions, 'cpp')
-    let g:executioner#extensions['cpp'] = 'g++ % -o @.out;./@.out'
+    let g:executioner#extensions['cpp'] = 'g++ ' . g:executioner#full_name . ' -o ' . g:executioner#base_name . '.out;./' . g:executioner#base_name . '.out'
   endif
   if !has_key(g:executioner#extensions, 'hs')
-    let g:executioner#extensions['hs'] = 'ghci %'
+    let g:executioner#extensions['hs'] = 'ghci ' . g:executioner#full_name . ''
   endif
   if !has_key(g:executioner#extensions, 'java')
-    let g:executioner#extensions['java'] = 'javac %;java @'
+    let g:executioner#extensions['java'] = 'javac ' . g:executioner#full_name . ';java ' . g:executioner#base_name . ''
   endif
   if !has_key(g:executioner#extensions, 'js')
-    let g:executioner#extensions['js'] = 'node %'
+    let g:executioner#extensions['js'] = 'node ' . g:executioner#full_name . ''
   endif
   if !has_key(g:executioner#extensions, 'm')
     let g:executioner#extensions['m'] = 'matlab'
   endif
   if !has_key(g:executioner#extensions, 'ml')
-    let g:executioner#extensions['ml'] = 'ocaml % -o @.out;./@.out'
+    let g:executioner#extensions['ml'] = 'ocaml ' . g:executioner#full_name . ' -o ' . g:executioner#base_name . '.out;./' . g:executioner#base_name . '.out'
   endif
   if !has_key(g:executioner#extensions, 'php')
-    let g:executioner#extensions['php'] = 'php %'
+    let g:executioner#extensions['php'] = 'php ' . g:executioner#full_name . ''
   endif
   if !has_key(g:executioner#extensions, 'pl')
-    let g:executioner#extensions['pl'] = 'perl %'
+    let g:executioner#extensions['pl'] = 'perl ' . g:executioner#full_name . ''
   endif
   if !has_key(g:executioner#extensions, 'prolog')
-    let g:executioner#extensions['prolog'] = 'swipl %'
+    let g:executioner#extensions['prolog'] = 'swipl ' . g:executioner#full_name . ''
   endif
   if !has_key(g:executioner#extensions, 'py')
-    let g:executioner#extensions['py'] = 'python3 %'
+    let g:executioner#extensions['py'] = 'python3 ' . g:executioner#full_name . ''
   endif
   if !has_key(g:executioner#extensions, 'py2')
-    let g:executioner#extensions['py2'] = 'python2 %'
+    let g:executioner#extensions['py2'] = 'python2 ' . g:executioner#full_name . ''
   endif
   if !has_key(g:executioner#extensions, 'R')
-    let g:executioner#extensions['R'] = 'Rscript %'
+    let g:executioner#extensions['R'] = 'Rscript ' . g:executioner#full_name . ''
   endif
   if !has_key(g:executioner#extensions, 'r')
-    let g:executioner#extensions['r'] = 'Rscript %'
+    let g:executioner#extensions['r'] = 'Rscript ' . g:executioner#full_name . ''
   endif
   if !has_key(g:executioner#extensions, 'rb')
-    let g:executioner#extensions['rb'] = 'ruby %'
+    let g:executioner#extensions['rb'] = 'ruby ' . g:executioner#full_name . ''
   endif
   if !has_key(g:executioner#extensions, 'rc')
-    let g:executioner#extensions['rc'] = 'rustc % -o @.out;./@.out'
+    let g:executioner#extensions['rc'] = 'rustc ' . g:executioner#full_name . ' -o ' . g:executioner#base_name . '.out;./' . g:executioner#base_name . '.out'
   endif
   if !has_key(g:executioner#extensions, 'sh')
-    let g:executioner#extensions['sh'] = 'bash %'
+    let g:executioner#extensions['sh'] = 'bash ' . g:executioner#full_name . ''
   endif
   if !has_key(g:executioner#extensions, 'swift')
-    let g:executioner#extensions['swift'] = 'swiftc % -o @.out;./@.out'
+    let g:executioner#extensions['swift'] = 'swiftc ' . g:executioner#full_name . ' -o ' . g:executioner#base_name . '.out;./' . g:executioner#base_name . '.out'
   endif
 
   if !has_key(g:executioner#names, 'makefile')
@@ -335,6 +335,22 @@ function! s:ParseArgs(has_teriminal, split_type, file_with_args)
   let s:file_with_args = a:file_with_args != "" ? a:file_with_args : expand("%")
 endfunction
 
+function! s:CommandIsInvalid(execute_command, file_name)
+  if a:execute_command == s:INVALID_COMMAND
+    execute "echo \"'" . a:file_name . "' is not configured to be executable.\""
+    return 1
+  endif
+  return 0
+endfunction
+
+function! s:SaveFileIfExists()
+  " Evaluate saving current buffer
+  " Don't save and reload current file not in file
+  if &filetype != ""
+    silent execute "update | edit"
+  endif
+endfunction
+
 function! s:SaveAndExecuteFile(...) abort
   " Since the user is not directly calling this, all arguments are guarenteed
   " Parameters:
@@ -351,23 +367,14 @@ function! s:SaveAndExecuteFile(...) abort
 
   call s:ParseArgs(a:1, a:2, a:3)
 
-  " If not split, then output is terminal
-  " Otherwise, the output replaces the current buffer contents
   let parsed_input = s:ParseInput(s:file_with_args)
   let execute_command = s:GetExecuteCommand(parsed_input)
 
-  " If invalid execute_command then return early with error message
-  if execute_command == s:INVALID_COMMAND
-    execute "echo \"'" . parsed_input[s:NAME]
-          \ . "' is not configured to be executable.\""
-    return -1
+  if s:CommandIsInvalid(execute_command, parsed_input[s:NAME])
+    return s:INVALID_COMMAND
   endif
 
-  " Evaluate saving current buffer
-  " Don't save and reload current file not in file
-  if &filetype != ""
-    silent execute "update | edit"
-  endif
+  call s:SaveFileIfExists()
 
   " Finally execute command
   call s:ExecuteCommand(s:split_type, execute_command, parsed_input[s:FILE])

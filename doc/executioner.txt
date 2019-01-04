@@ -1,4 +1,4 @@
-*executioner.txt*        For Vim version 8.1       Last change: 2019 January 01
+*executioner.txt*        For Vim version 8.1        Last change: 2019 January 02
 
             _____                    _   _                                     ~
            |  ___|                  | | (_)                                    ~
