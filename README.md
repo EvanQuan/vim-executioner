@@ -327,3 +327,9 @@ I want to run a Vim command:
 let g:executioner#extensions['markdown'] = ':InstantMarkdownPreview'
 let g:executioner#extensions['md'] = ':InstantMarkdownPreview'
 ```
+
+Similarly, with [vimtex](https://github.com/lervag/vimtex), I can compile and
+preview LaTeX files with:
+```vim
+let g:executioner#extensions['tex'] = ':VimtexCompile'
+```
