@@ -1,4 +1,4 @@
-*executioner.txt*        For Vim version 8.1        Last change: 2019 January 02
+*executioner.txt*        For Vim version 8.1        Last change: 2019 January 06
 
             _____                    _   _                                     ~
            |  ___|                  | | (_)                                    ~
@@ -21,6 +21,7 @@ CONTENTS                                                  *executioner-contents*
     2. Functionality............................|executioner-functionality|
         2.1 Commands............................|executioner-commands|
             2.2.1 Terminal Window vs. Buffer....|executioner-terminal-vs-buffer|
+            2.2.2 Vim Commands..................|executioner-vim-commands|
         2.2 Variables...........................|executioner-variables|
     3. Mappings.................................|executioner-mappings|
 
@@ -157,6 +158,20 @@ including `>`, `<`, and `|` characters.
 
 Any terminal window command that involves input redirection will fall back to
 the buffer equivalent if input redirection operators are found.
+
+------------------------------------------------------------------------------
+2.2.2 Vim Commands                                    *executioner-vim-commands*
+
+If any executing command defined in |g:executioner#extensions| or
+|g:executioner#names| starts with ':', a Vim command will be executed instead
+of a shell, terminal window, or buffer. For example, if the following is
+defined in your |vimrc|: >
+
+        let g:executioner#extensions['md'] = ':InstantMarkdownPreview'
+        let g:executioner#extensions['markdown'] = ':InstantMarkdownPreview'
+<
+then running any markdown files with any of the |executioner-commands| will
+execute the Vim command `:InstantMarkdownPreview`.
 
 ------------------------------------------------------------------------------
 2.2 Variables                                            *executioner-variables*

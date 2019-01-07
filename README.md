@@ -158,6 +158,19 @@ including `>`, `<`, and `|` characters.
 Any terminal window command that involves input redirection will fall back to
 the buffer equivalent if input redirection operators are found.
 
+#### Vim Commands
+
+If any executing command defined in `g:executioner#extensions` or
+`g:executioner#names` starts with ':', a Vim command will be executed instead
+of a shell, terminal window, or buffer. For example, if the following is
+defined in your `vimrc`:
+```vim
+let g:executioner#extensions['md'] = ':InstantMarkdownPreview'
+let g:executioner#extensions['markdown'] = ':InstantMarkdownPreview'
+```
+then running any markdown files with any of the executioner commands will
+execute the Vim command `:InstantMarkdownPreview`.
+
 #### Key Mappings
 
 By default, Executioner does not provide any key mappings as to not override

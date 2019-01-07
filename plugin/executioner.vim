@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.3.1
+" Version:    1.4.0
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " You can learn more about it with:
@@ -14,19 +14,7 @@ if exists("g:executioner#loaded")
   finish
 endif
 
-" Name and extension
-if !exists("g:executioner#full_name") || len(g:executioner#full_name) != 1
-  let g:executioner#full_name = '%'
-endif
-" Just name
-if !exists("g:executioner#base_name") || len(g:executioner#base_name) != 1
-  let g:executioner#base_name = '@'
-endif
-
-if !exists("g:executioner#load_defaults")
-  let g:executioner#load_defaults = 1
-endif
-
+" Script Variables {{{
 " Parsed input
 let s:FILE = 0
 let s:NAME = 1
@@ -43,8 +31,25 @@ let s:HORIZONTAL = 3
 let s:INVALID_COMMAND = -1
 
 let s:DIRECTORY_SEPARATOR = '[/\\]'
+let s:VIM_COMMAND_PATTERN = '^:.\+'
 
 let s:has_teriminal = has("terminal")
+" }}}
+" Global variables {{{
+" Name and extension
+if !exists("g:executioner#full_name") || len(g:executioner#full_name) != 1
+  let g:executioner#full_name = '%'
+endif
+" Just name
+if !exists("g:executioner#base_name") || len(g:executioner#base_name) != 1
+  let g:executioner#base_name = '@'
+endif
+
+if !exists("g:executioner#load_defaults")
+  let g:executioner#load_defaults = 1
+endif
+
+
 
 " extension : command
 " Command is executed if file has specified extension
@@ -58,7 +63,7 @@ if !exists("g:executioner#names")
   let g:executioner#names = {}
 endif
 
-if g:executioner#load_defaults
+if g:executioner#load_defaults " {{{
   if !has_key(g:executioner#extensions, 'c')
     let g:executioner#extensions['c'] = 'gcc ' . g:executioner#full_name . ' -o ' . g:executioner#base_name . '.out;./' . g:executioner#base_name . '.out'
   endif
@@ -117,9 +122,11 @@ if g:executioner#load_defaults
   if !has_key(g:executioner#names, 'makefile')
     let g:executioner#names['makefile'] = 'make'
   endif
-endif
+endif " }}}
 
-function! s:SplitNameAndExtenstion(file) abort
+" }}}
+
+function! s:SplitNameAndExtenstion(file) abort " {{{
   " Get the extension of file name denoted characters after the last "."
   " Paramters:
   "   string file
@@ -143,13 +150,12 @@ function! s:SplitNameAndExtenstion(file) abort
     let s:extension = ""
   endif
   return [s:name, s:extension]
-endfunction
-
-function! s:GetExtension(...) abort
+endfunction " }}}
+function! s:GetExtension(...) abort " {{{
+  " TODO
   return 1
-endfunction
-
-function! s:GetExecuteCommand(parsed_input) abort
+endfunction " }}}
+function! s:GetExecuteCommand(parsed_input) abort " {{{
   " Parameters:
   "   list parsed_input [string file, string name, string extension,
   "                      string args]
@@ -174,9 +180,8 @@ function! s:GetExecuteCommand(parsed_input) abort
   let s:command = s:Substitute(s:command, g:executioner#full_name,
         \ a:parsed_input[s:FILE])
   return s:command
-endfunction
-
-function! s:Substitute(string, old, new) abort
+endfunction " }}}
+function! s:Substitute(string, old, new) abort " {{{
   " Substitute characters of old with strings of new
   " Parameters:
   "   string string to substitute characters
@@ -189,9 +194,8 @@ function! s:Substitute(string, old, new) abort
     let s:new_string .= a:string[i] == a:old ? a:new : a:string[i]
   endfor
   return s:new_string
-endfunction
-
-function! s:ParseInput(file_with_args) abort
+endfunction " }}}
+function! s:ParseInput(file_with_args) abort " {{{
   " Parses the input into its components
   " Parameters:
   "   string file_with_args - file name, optionally followed by arguments
@@ -227,25 +231,21 @@ function! s:ParseInput(file_with_args) abort
 
   return [s:file_with_extension, s:file[0], s:file[1], s:arguments,
         \ s:pathless_name]
-endfunction
-
-function! s:ExecuteCommandShell(execute_command)
+endfunction " }}}
+function! s:ExecuteCommandShell(execute_command) " {{{
   execute "!" . a:execute_command
-endfunction
-
-function! s:GetSplitPrefixTerminal(split_type, execute_command)
+endfunction " }}}
+function! s:GetSplitPrefixTerminal(split_type, execute_command) " {{{
   return (a:split_type == s:VERTICAL ? "vertical " : "") . "terminal "
 endfunction
 
 function! s:GetSplitPrefixBuffer(split_type)
   return (a:split_type == s:NONE ? "" : ".") . "!"
-endfunction
-
-function! s:ExecuteCommandTerminal(split_type, execute_command) abort
+endfunction " }}}
+function! s:ExecuteCommandTerminal(split_type, execute_command) abort " {{{
   execute  s:GetSplitPrefixTerminal(a:split_type, a:execute_command) . a:execute_command
-endfunction
-
-function! s:OpenBufferIfNotExists(split_type)
+endfunction " }}}
+function! s:OpenBufferIfNotExists(split_type) " {{{
   let output_buffer_name = "Output"
   let buffer_split = a:split_type == s:VERTICAL ? 'vertical' : 'botright'
   " reuse existing buffer window if it exists otherwise create a new one
@@ -258,9 +258,8 @@ function! s:OpenBufferIfNotExists(split_type)
   elseif bufwinnr(s:buffer_number) != bufwinnr('%')
     silent execute bufwinnr(s:buffer_number) . 'wincmd w'
   endif
-endfunction
-
-function! s:ConfigureBuffer()
+endfunction " }}}
+function! s:ConfigureBuffer() " {{{
   let output_buffer_filetype = "output"
   silent execute "setlocal filetype=" . output_buffer_filetype
   setlocal bufhidden=delete
@@ -272,22 +271,19 @@ function! s:ConfigureBuffer()
   setlocal nonumber
   setlocal norelativenumber
   setlocal showbreak=""
-endfunction
-
-function! s:SetBufferModifiable()
+endfunction " }}}
+function! s:SetBufferModifiable() " {{{
   " clear the buffer and make it modifiable for terminal output
   setlocal noreadonly
   setlocal modifiable
   %delete _
-endfunction
-
-function s:ExecuteCommandInBuffer(split_type, execute_command, file_name)
+endfunction " }}}
+function! s:ExecuteCommandInBuffer(split_type, execute_command, file_name) " {{{
   echon 'Executing ' . a:file_name . ' ... '
   " Execute file
   execute s:GetSplitPrefixBuffer(a:split_type) . a:execute_command
-endfunction
-
-function s:SetBufferReadOnly()
+endfunction " }}}
+function! s:SetBufferReadOnly() " {{{
   " resize window to content length
   " Note: This is annoying because if you print a lot of lines then your
   "       code buffer is forced to a height of one line every time you execute
@@ -302,27 +298,35 @@ function s:SetBufferReadOnly()
   " make the buffer non modifiable
   setlocal readonly
   setlocal nomodifiable
-endfunction
-
-function! s:ExecuteCommandBuffer(split_type, execute_command, file_name) abort
+endfunction " }}}
+function! s:ExecuteCommandBuffer(split_type, execute_command, file_name) abort " {{{
   call s:OpenBufferIfNotExists(a:split_type)
   call s:ConfigureBuffer()
   call s:SetBufferModifiable()
   call s:ExecuteCommandInBuffer(a:split_type, a:execute_command, a:file_name)
   call s:SetBufferReadOnly()
-endfunction
-
-function! s:ExecuteCommand(split_type, execute_command, file_name) abort
-  if a:split_type == s:NONE || (s:has_teriminal && a:execute_command =~ ';')
+endfunction " }}}
+function! s:IsMultiCommand(execute_command) " {{{
+  return a:execute_command =~ ';'
+endfunction " }}}
+function! s:IsVimCommand(execute_command) " {{{
+  return a:execute_command =~ s:VIM_COMMAND_PATTERN
+endfunction " }}}
+function! s:ExecuteVimCommand(execute_command) " {{{
+  execute a:execute_command
+endfunction " }}}
+function! s:ExecuteCommand(split_type, execute_command, file_name) abort " {{{
+  if s:IsVimCommand(a:execute_command)
+    call s:ExecuteVimCommand(a:execute_command)
+  elseif a:split_type == s:NONE || (s:has_teriminal && s:IsMultiCommand(a:execute_command))
     call s:ExecuteCommandShell(a:execute_command)
   elseif s:has_teriminal
     call s:ExecuteCommandTerminal(a:split_type, a:execute_command)
   else
     call s:ExecuteCommandBuffer(a:split_type, a:execute_command, a:file_name)
   endif
-endfunction
-
-function! s:ParseArgs(has_teriminal, split_type, file_with_args)
+endfunction " }}}
+function! s:ParseArgs(has_teriminal, split_type, file_with_args) " {{{
   let s:has_teriminal = a:has_teriminal
 
   " Note: Temporary fix. If the command is multicommand (has semicolon),
@@ -333,25 +337,22 @@ function! s:ParseArgs(has_teriminal, split_type, file_with_args)
   " is being ran with no arguments.
   " Otherwise, assume the first argument is the file to be ran.
   let s:file_with_args = a:file_with_args != "" ? a:file_with_args : expand("%")
-endfunction
-
-function! s:CommandIsInvalid(execute_command, file_name)
+endfunction " }}}
+function! s:CommandIsInvalid(execute_command, file_name) " {{{
   if a:execute_command == s:INVALID_COMMAND
     execute "echo \"'" . a:file_name . "' is not configured to be executable.\""
     return 1
   endif
   return 0
-endfunction
-
-function! s:SaveFileIfExists()
+endfunction " }}}
+function! s:SaveFileIfExists() " {{{
   " Evaluate saving current buffer
   " Don't save and reload current file not in file
   if &filetype != ""
     silent execute "update | edit"
   endif
-endfunction
-
-function! s:SaveAndExecuteFile(...) abort
+endfunction " }}}
+function! s:SaveAndExecuteFile(...) abort " {{{
   " Since the user is not directly calling this, all arguments are guarenteed
   " Parameters:
   "   a:1 int has_teriminal
@@ -378,14 +379,13 @@ function! s:SaveAndExecuteFile(...) abort
 
   " Finally execute command
   call s:ExecuteCommand(s:split_type, execute_command, parsed_input[s:FILE])
-endfunction
-
-
-" Create commands
+endfunction " }}}
+" Create commands {{{
 command! -nargs=* Executioner                 :call s:SaveAndExecuteFile(s:has_teriminal, s:NONE, <q-args>)
 command! -nargs=* ExecutionerVertical         :call s:SaveAndExecuteFile(s:has_teriminal, s:VERTICAL, <q-args>)
 command! -nargs=* ExecutionerHorizontal       :call s:SaveAndExecuteFile(s:has_teriminal, s:HORIZONTAL, <q-args>)
 command! -nargs=* ExecutionerVerticalBuffer   :call s:SaveAndExecuteFile(0, s:VERTICAL, <q-args>)
 command! -nargs=* ExecutionerHorizontalBuffer :call s:SaveAndExecuteFile(0, s:HORIZONTAL, <q-args>)
+" }}}
 
 let g:executioner#loaded = 1
