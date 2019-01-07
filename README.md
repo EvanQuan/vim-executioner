@@ -14,6 +14,7 @@ Table of Contents
 3. [Configure Executable Files](#configure-executable-files)
     - [Full and base name symbols](#full-and-base-name-symbols)
     - [Commands](#commands-1)
+4. [Configuration Ideas](#configuration-ideas)
 
 ## Installation
 
@@ -300,3 +301,29 @@ If you wish to disable these defaults entirely, include:
 let g:executioner#load_defaults = 0
 ```
 in your `vimrc` and they will not be defined.
+
+## Configuration Ideas
+
+Depending on the machine I'm on, the `python` command either runs Python 2 or
+Python 3. Also, I sometimes have Anaconda installed, which I will want to use
+if possible. As a result, I customize what version of Python runs depending on
+some other settings I have:
+```vim
+let g:executioner#extensions = {}
+if g:settings#python3_execution == 0
+  let g:executioner#extensions['py'] = 'python %'
+elseif filereadable(expand('/anaconda3/bin/python'))
+  let g:executioner#extensions['py'] = '/anaconda3/bin/python %'
+else
+  let g:executioner#extensions['py'] = 'python3 %'
+endif
+```
+With the help of
+[vim-instant-markdown](https://github.com/suan/vim-instant-markdown), I can
+preview github-flavored markdown files. Since the preview command is ran in
+Vim itself and not in a |shell|, I can prepend the command with ":" to signify
+I want to run a Vim command:
+```vim
+let g:executioner#extensions['markdown'] = ':InstantMarkdownPreview'
+let g:executioner#extensions['md'] = ':InstantMarkdownPreview'
+```

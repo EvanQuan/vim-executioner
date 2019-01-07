@@ -24,6 +24,7 @@ CONTENTS                                                  *executioner-contents*
             2.2.2 Vim Commands..................|executioner-vim-commands|
         2.2 Variables...........................|executioner-variables|
     3. Mappings.................................|executioner-mappings|
+    4. Configuration Ideas......................|executioner-ideas|
 
 ==============================================================================
 1. Intro                                                     *executioner-intro*
@@ -324,5 +325,33 @@ Due to the complexity of many projects that span a large number of files,
 I use makefiles and `run.sh` to compile and run large projects without needing
 to worry about what file I'm currently editing.
 
+==============================================================================
+4. Configuration Ideas                             *executioner-ideas*
+
+Depending on the machine I'm on, the `python` command either runs Python 2 or
+Python 3. Also, I sometimes have Anaconda installed, which I will want to use
+if possible. As a result, I customize what version of Python runs depending on
+some other settings I have: >
+
+        let g:executioner#extensions = {}
+        if g:settings#python3_execution == 0
+          let g:executioner#extensions['py'] = 'python %'
+        elseif filereadable(expand('/anaconda3/bin/python'))
+          let g:executioner#extensions['py'] = '/anaconda3/bin/python %'
+        else
+          let g:executioner#extensions['py'] = 'python3 %'
+        endif
+<
+With the help of vim-instant-markdown, found at:
+
+        https://github.com/suan/vim-instant-markdown
+
+I can preview github-flavored markdown files. Since the preview command is ran
+in Vim itself and not in a |shell|, I can prepend the command with ":" to
+signify I want to run a Vim command:
+>
+        let g:executioner#extensions['markdown'] = ':InstantMarkdownPreview'
+        let g:executioner#extensions['md'] = ':InstantMarkdownPreview'
+<
 ------------------------------------------------------------------------------
 vim:tw=78:ts=8:ft=help:noet:expandtab
