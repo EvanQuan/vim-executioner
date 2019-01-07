@@ -304,10 +304,13 @@ in your `vimrc` and they will not be defined.
 
 ## Configuration Ideas
 
+Here are some things I have done to customize executioner in [my own Vim
+configuration](https://github.com/EvanQuan/qvim):
+
 Depending on the machine I'm on, the `python` command either runs Python 2 or
-Python 3. Also, I sometimes have Anaconda installed, which I will want to use
-if possible. As a result, I customize what version of Python runs depending on
-some other settings I have:
+Python 3. Also, I sometimes have [Anaconda](https://www.anaconda.com/)
+installed, which I will want to use if possible. As a result, I customize what
+version of Python runs depending on some other settings I have:
 ```vim
 let g:executioner#extensions = {}
 if g:settings#python3_execution == 0
@@ -321,7 +324,7 @@ endif
 With the help of
 [vim-instant-markdown](https://github.com/suan/vim-instant-markdown), I can
 preview github-flavored markdown files. Since the preview command is ran in
-Vim itself and not in a |shell|, I can prepend the command with ":" to signify
+Vim itself and not in a shell, I can prepend the command with ":" to signify
 I want to run a Vim command:
 ```vim
 let g:executioner#extensions['markdown'] = ':InstantMarkdownPreview'
