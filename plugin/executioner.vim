@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.4.0
+" Version:    1.5.0
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " You can learn more about it with:
@@ -94,6 +94,12 @@ if g:executioner#load_defaults " {{{
   if !has_key(g:executioner#extensions, 'prolog')
     let g:executioner#extensions['prolog'] = 'swipl ' . g:executioner#full_name . ''
   endif
+  if !has_key(g:executioner#extensions, 'markdown')
+    let g:executioner#extensions['markdown'] = ':InstantMarkdownPreview'
+  endif
+  if !has_key(g:executioner#extensions, 'md')
+    let g:executioner#extensions['md'] = ':InstantMarkdownPreview'
+  endif
   if !has_key(g:executioner#extensions, 'py')
     let g:executioner#extensions['py'] = 'python3 ' . g:executioner#full_name . ''
   endif
@@ -117,6 +123,12 @@ if g:executioner#load_defaults " {{{
   endif
   if !has_key(g:executioner#extensions, 'swift')
     let g:executioner#extensions['swift'] = 'swiftc ' . g:executioner#full_name . ' -o ' . g:executioner#base_name . '.out;./' . g:executioner#base_name . '.out'
+  endif
+  if !has_key(g:executioner#extensions, 'tex')
+    let g:executioner#extensions['tex'] = ':VimtexCompile'
+  endif
+  if !has_key(g:executioner#extensions, 'vim')
+    let g:executioner#extensions['py2'] = ':Vader ' . g:executioner#full_name . ''
   endif
 
   if !has_key(g:executioner#names, 'makefile')
