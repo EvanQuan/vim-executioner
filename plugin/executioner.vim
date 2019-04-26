@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.5.0
+" Version:    1.5.1
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " You can learn more about it with:
@@ -383,7 +383,7 @@ function! s:SaveAndExecuteFile(...) abort " {{{
   let parsed_input = s:ParseInput(s:file_with_args)
   let execute_command = s:GetExecuteCommand(parsed_input)
 
-  if s:CommandIsInvalid(execute_command, parsed_input[s:NAME])
+  if s:CommandIsInvalid(execute_command, parsed_input[s:FILE])
     return s:INVALID_COMMAND
   endif
 
