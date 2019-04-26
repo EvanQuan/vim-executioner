@@ -1,7 +1,7 @@
 " ============================================================================
 " File:       executioner.vim
 " Maintainer: https://github.com/EvanQuan/vim-executioner/
-" Version:    1.5.1
+" Version:    1.5.2
 "
 " A Vim plugin to easily execute files in the terminal or a separate buffer.
 " You can learn more about it with:
@@ -128,7 +128,7 @@ if g:executioner#load_defaults " {{{
     let g:executioner#extensions['tex'] = ':VimtexCompile'
   endif
   if !has_key(g:executioner#extensions, 'vim')
-    let g:executioner#extensions['py2'] = ':Vader ' . g:executioner#full_name . ''
+    let g:executioner#extensions['vim'] = ':Vader ' . g:executioner#full_name . ''
   endif
 
   if !has_key(g:executioner#names, 'makefile')
