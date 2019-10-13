@@ -276,6 +276,7 @@ yourself. These are the defaults:
 | js        | node %                    |
 | m         | matlab                    |
 | ml        | ocaml % -o @.out;./@.out  |
+| ps1       | powershell ./%            |
 | php       | php %                     |
 | pl        | perl %                    |
 | prolog    | swipl %                   |
