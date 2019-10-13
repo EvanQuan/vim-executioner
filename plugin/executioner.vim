@@ -85,6 +85,15 @@ if g:executioner#load_defaults " {{{
   if !has_key(g:executioner#extensions, 'ml')
     let g:executioner#extensions['ml'] = 'ocaml ' . g:executioner#full_name . ' -o ' . g:executioner#base_name . '.out;./' . g:executioner#base_name . '.out'
   endif
+  if !has_key(g:executioner#extensions, 'markdown')
+    let g:executioner#extensions['markdown'] = ':InstantMarkdownPreview'
+  endif
+  if !has_key(g:executioner#extensions, 'md')
+    let g:executioner#extensions['md'] = ':InstantMarkdownPreview'
+  endif
+  if !has_key(g:executioner#extensions, 'ps1')
+    let g:executioner#extensions['ps1'] = 'powershell ./' . g:executioner#full_name
+  endif
   if !has_key(g:executioner#extensions, 'php')
     let g:executioner#extensions['php'] = 'php ' . g:executioner#full_name . ''
   endif
@@ -93,12 +102,6 @@ if g:executioner#load_defaults " {{{
   endif
   if !has_key(g:executioner#extensions, 'prolog')
     let g:executioner#extensions['prolog'] = 'swipl ' . g:executioner#full_name . ''
-  endif
-  if !has_key(g:executioner#extensions, 'markdown')
-    let g:executioner#extensions['markdown'] = ':InstantMarkdownPreview'
-  endif
-  if !has_key(g:executioner#extensions, 'md')
-    let g:executioner#extensions['md'] = ':InstantMarkdownPreview'
   endif
   if !has_key(g:executioner#extensions, 'py')
     let g:executioner#extensions['py'] = 'python3 ' . g:executioner#full_name . ''
