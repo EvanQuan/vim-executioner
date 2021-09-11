@@ -97,6 +97,9 @@ if g:executioner#load_defaults " {{{
   if !has_key(g:executioner#extensions, 'php')
     let g:executioner#extensions['php'] = 'php ' . g:executioner#full_name . ''
   endif
+  if !has_key(g:executioner#extensions, 'lua')
+    let g:executioner#extensions['lua'] = 'lua ' . g:executioner#full_name . ''
+  endif
   if !has_key(g:executioner#extensions, 'pl')
     let g:executioner#extensions['pl'] = 'perl ' . g:executioner#full_name . ''
   endif
