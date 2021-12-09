@@ -118,6 +118,9 @@ if g:executioner#load_defaults " {{{
   if !has_key(g:executioner#extensions, 'rb')
     let g:executioner#extensions['rb'] = 'ruby ' . g:executioner#full_name . ''
   endif
+  if !has_key(g:executioner#extensions, 'go')
+    let g:executioner#extensions['go'] = 'go run ' . g:executioner#full_name . ''
+  endif
   if !has_key(g:executioner#extensions, 'rc')
     let g:executioner#extensions['rc'] = 'rustc ' . g:executioner#full_name . ' -o ' . g:executioner#base_name . '.out;./' . g:executioner#base_name . '.out'
   endif
