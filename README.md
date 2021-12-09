@@ -269,8 +269,8 @@ yourself. These are the defaults:
 ##### g:executioner#extensions
 | Extension | Command                   |
 |:---------:|:-------------------------:|
-| c         | gcc % -o @.out;./@out     |
-| cpp       | g++ % -o @.out;./@out     |
+| c         | gcc % -o @.out;./@.out    |
+| cpp       | g++ % -o @.out;./@.out    |
 | hs        | ghci %                    |
 | java      | javac %;java @            |
 | js        | node %                    |
